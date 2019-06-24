@@ -18,12 +18,11 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
-import org.hibernate.query.Query;
 
 import com.ccnb.bean.CCNBNSCStagingMigration;
 import com.monitorjbl.xlsx.StreamingReader;
 
-public class NSCStagingExcelMigrator {
+public class ReadExcelMigrator {
 
     public static void main(String[] args) throws Exception
     {        
@@ -253,12 +252,7 @@ public class NSCStagingExcelMigrator {
 	        			
 	        			case 78: ccnbNscStagingMigration.setCreated_on((c.getStringCellValue()=="")?null:ccnbDateFormat.parse(c.getStringCellValue()));break;
 	        			
-	        			case 79:
-	        				String consNo = c.getStringCellValue();
-        					for(int i=consNo.length();i<10;i++)
-        						consNo = "0" + consNo;
-	        				ccnbNscStagingMigration.setOld_cons_no(consNo);	        				
-	        				break;
+	        			case 79: ccnbNscStagingMigration.setOld_cons_no(c.getStringCellValue());break;
 	        			
 	        			case 80: ccnbNscStagingMigration.setOld_gr_no(c.getStringCellValue());break;
 	        			

@@ -84,7 +84,7 @@ public class Migration {
 					MeterMaster meterMaster = new MeterMaster();
 					
 					String make="", serialNo="";
-					if(!currentRecord.getMeter_identifier().trim().isEmpty()) {
+					if(currentRecord.getMeter_identifier()!=null && !currentRecord.getMeter_identifier().trim().isEmpty()) {
 						String ccnbIdentifier = currentRecord.getMeter_identifier();
 						int meterMakeIndex = getMeterMakeIndex(ccnbIdentifier);
 						make = ccnbIdentifier.substring(0, meterMakeIndex+1);
