@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.PrintWriter;
 import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
@@ -56,6 +57,8 @@ public class Migration {
 		Query<CcnbNgbTariffMapping> tariffMappingQuery = session.createQuery("from CcnbNgbTariffMapping");
 		List<CcnbNgbTariffMapping> tariffMappings = tariffMappingQuery.list(); 
 		
+		SimpleDateFormat ccnbDateFormat = new SimpleDateFormat("dd-MM-yyyy");
+
 		Query<String> zoneQuery;
 		Query<Integer> migrationStatus;
 
@@ -77,6 +80,12 @@ public class Migration {
 				nscStagingMigration.setPremise_type(currentRecord.getPremise_type());
 				
 				nscStagingMigration.setIs_employee(currentRecord.isIs_employee());
+				
+				//Connection date is same as application date
+				if(currentRecord.getConnection_date()==null)
+					nscStagingMigration.setApplication_date(ccnbDateFormat.parse("10-10-2010"));
+				else
+					nscStagingMigration.setApplication_date(currentRecord.getConnection_date());
 				
 				if("Y".equals(currentRecord.getMetering_status().trim())) {
 					nscStagingMigration.setMetering_status("METERED");
@@ -104,7 +113,12 @@ public class Migration {
 					meterMaster.setCreateOn(new Date());						
 				
 					nscStagingMigration.setMeter_identifier(meterMaster.getIdentifier());
-					nscStagingMigration.setMeter_installation_date(currentRecord.getMeter_installation_date());
+					
+					if(currentRecord.getMeter_installation_date()==null)
+						nscStagingMigration.setMeter_installation_date(nscStagingMigration.getApplication_date());
+					else
+						nscStagingMigration.setMeter_installation_date(currentRecord.getMeter_installation_date());
+					
 					nscStagingMigration.setMeter_installer_name("MIGRATION");
 					nscStagingMigration.setMeter_installer_designation("MIG");
 					
@@ -120,6 +134,8 @@ public class Migration {
 				
 				if("SC/ST".equals(currentRecord.getCategory().trim()))
 					nscStagingMigration.setCategory("ST");
+				else if("NOT DISCLOSED".equals(currentRecord.getCategory().trim()))
+					nscStagingMigration.setCategory("GENERAL");
 				else
 					nscStagingMigration.setCategory(currentRecord.getCategory().trim());
 
@@ -170,17 +186,35 @@ public class Migration {
 				else if("A".equals(currentRecord.getDishnrd_chq_flg().trim()))
 					nscStagingMigration.setDishnrd_chq_flg("Y");
 
-				nscStagingMigration.setConnection_type(currentRecord.getConnection_type());
-				
-				nscStagingMigration.setContract_demand(currentRecord.getContract_demand());
-				
 				nscStagingMigration.setContract_demand_unit(currentRecord.getContract_demand_unit());
 
+				if(currentRecord.getOld_trf_catg().trim().startsWith("LV4") && "HP".equals(currentRecord.getContract_demand_unit().trim())) {
+					BigDecimal contractDemand = currentRecord.getContract_demand().multiply(new BigDecimal(0.746));
+					contractDemand = contractDemand.setScale(3, BigDecimal.ROUND_HALF_UP);
+					
+					nscStagingMigration.setContract_demand(contractDemand);
+					nscStagingMigration.setContract_demand_unit("KW");
+				}else
+					nscStagingMigration.setContract_demand(currentRecord.getContract_demand());
+				
+				if(currentRecord.getOld_trf_catg().startsWith("LV2")) {
+					if(currentRecord.getSanctioned_load().compareTo(new BigDecimal(10))>0 && currentRecord.getSanctioned_load().compareTo(currentRecord.getContract_demand())<0)
+						throw new Exception("Sanctioned load can't be less than the contract demand!");
+				}else if(currentRecord.getOld_trf_catg().startsWith("LV4")) {
+					BigDecimal sanctionedLoad = currentRecord.getSanctioned_load().multiply(new BigDecimal(0.746));
+					sanctionedLoad = sanctionedLoad.setScale(3, BigDecimal.ROUND_HALF_UP);
+					if(sanctionedLoad.compareTo(currentRecord.getContract_demand())<0)
+						throw new Exception("Sanctioned load can't be less than the contract demand!");
+				}
+				
 				nscStagingMigration.setTotal_outstanding(currentRecord.getTotal_outstanding());
 				
 				nscStagingMigration.setPrev_arrear(currentRecord.getPrev_arrear());
 				
-				nscStagingMigration.setPend_surcharge(currentRecord.getPend_surcharge());
+				if(Double.parseDouble(currentRecord.getPend_surcharge())<0)
+					nscStagingMigration.setPend_surcharge("0");
+				else
+					nscStagingMigration.setPend_surcharge(currentRecord.getPend_surcharge());
 				
 				nscStagingMigration.setCurr_surcharge(currentRecord.getCurr_surcharge());
 				
@@ -192,20 +226,28 @@ public class Migration {
 				
 				nscStagingMigration.setNrev_catg(currentRecord.getNrev_catg());
 				
-				if(currentRecord.getPrimary_mobile_no()!=null && currentRecord.getPrimary_mobile_no().length()==10)
-					nscStagingMigration.setPrimary_mobile_no(currentRecord.getPrimary_mobile_no());
-
+				if(currentRecord.getPrimary_mobile_no()!=null) {
+					if(currentRecord.getPrimary_mobile_no().length()==10)
+						nscStagingMigration.setPrimary_mobile_no(currentRecord.getPrimary_mobile_no());					
+					else if(currentRecord.getPrimary_mobile_no().length()==12 || currentRecord.getPrimary_mobile_no().length()==13) {
+						if(currentRecord.getPrimary_mobile_no().startsWith("+91"))
+							nscStagingMigration.setPrimary_mobile_no(currentRecord.getPrimary_mobile_no().substring(3));
+						else if(currentRecord.getPrimary_mobile_no().startsWith("91"))
+							nscStagingMigration.setPrimary_mobile_no(currentRecord.getPrimary_mobile_no().substring(2));
+					}
+				}
 				
 				nscStagingMigration.setIs_bpl(currentRecord.isIs_bpl());
 				
 				if(currentRecord.isIs_bpl()) {
 					if(currentRecord.getBpl_no().trim().isEmpty())
-						nscStagingMigration.setBpl_no(currentRecord.getOld_cons_no());
+						nscStagingMigration.setBpl_no("MIG".concat(currentRecord.getOld_cons_no()));
 					else
 						nscStagingMigration.setBpl_no(currentRecord.getBpl_no());					
 				}
 				
-				nscStagingMigration.setAadhaar_no(currentRecord.getAadhaar_no());
+				if(currentRecord.getAadhaar_no()!=null && currentRecord.getAadhaar_no().length()==12)
+					nscStagingMigration.setAadhaar_no(currentRecord.getAadhaar_no());
 				
 				nscStagingMigration.setConsumer_name_h(currentRecord.getConsumer_name_h());
 				
@@ -220,7 +262,10 @@ public class Migration {
 				//Tariff Category
 				nscStagingMigration.setTariff_category(currentRecord.getOld_trf_catg().substring(0, 3));
 
-				nscStagingMigration.setConnection_type(currentRecord.getConnection_type());
+				if(currentRecord.getOld_trf_catg().contains("T") && "PERMANENT".equals(currentRecord.getConnection_type().trim()))
+					nscStagingMigration.setConnection_type("TEMPORARY");
+				else					
+					nscStagingMigration.setConnection_type(currentRecord.getConnection_type());
 				
 				nscStagingMigration.setIs_seasonal(currentRecord.isIs_seasonal());
 				
@@ -327,7 +372,11 @@ public class Migration {
 				
 				nscStagingMigration.setHas_modem(currentRecord.isHas_modem());
 				
-				nscStagingMigration.setSecurity_deposit_amount(currentRecord.getSecurity_deposit_amount().abs());
+				//Forcefully set the positive security deposit to zero and convert the negative security deposit to positive
+				if(currentRecord.getSecurity_deposit_amount().compareTo(BigDecimal.ZERO)>0)
+					nscStagingMigration.setSecurity_deposit_amount(BigDecimal.ZERO);
+				else
+					nscStagingMigration.setSecurity_deposit_amount(currentRecord.getSecurity_deposit_amount().abs());
 
 				nscStagingMigration.setPortal_name("CCNB MIGRATION");
 				
@@ -347,8 +396,6 @@ public class Migration {
 				else
 					throw new Exception("Invalid status!");
 				
-				nscStagingMigration.setApplication_date(currentRecord.getConnection_date());
-				
 				//Subcategory code only handeled for domestic as of now
 				if(currentRecord.getOld_trf_catg().trim().startsWith("LV1.1")) {
 					if(currentRecord.getSanctioned_load().compareTo(new BigDecimal(0.1))>0)
@@ -356,6 +403,7 @@ public class Migration {
 				}
 				
 				if(currentRecord.getOld_trf_catg().trim().startsWith("LV1")) {
+					
 					if(!"KW".equals(currentRecord.getSanctioned_load_unit()))
 						throw new Exception("Invalid sanctioned load unit for LV1 tariff category !!");
 
@@ -363,7 +411,13 @@ public class Migration {
 						nscStagingMigration.setSub_category_code(Long.parseLong(tariffMapping.getNgbUrbanSubcategory1()));
 					else if("RURAL".equals(currentRecord.getPremise_type()))
 						nscStagingMigration.setSub_category_code(Long.parseLong(tariffMapping.getNgbRuralSubcategory1()));
+					
+				}else if(currentRecord.getOld_trf_catg().trim().startsWith("LV3")) {
+					if("CM_IPMPW".equals(currentRecord.getSaType()) || "CM_BPMPW".equals(currentRecord.getSaType()) || "CM_JPMPW".equals(currentRecord.getSaType())) {
+						/////////////////////////////////////////////////////////////
+					}
 				}else if(currentRecord.getOld_trf_catg().trim().startsWith("LV2")) {
+					
 					if(!"KW".equals(currentRecord.getSanctioned_load_unit()))
 						throw new Exception("Invalid sanctioned load unit for LV2 tariff category !!");
 
@@ -372,15 +426,19 @@ public class Migration {
 							nscStagingMigration.setSub_category_code(Long.parseLong(tariffMapping.getNgbUrbanSubcategory1()));
 						else if("RURAL".equals(currentRecord.getPremise_type()))
 							nscStagingMigration.setSub_category_code(Long.parseLong(tariffMapping.getNgbRuralSubcategory1()));						
+						
 					}else {
+						
 						if(currentRecord.getContract_demand().compareTo(BigDecimal.ZERO)==0)
 							throw new Exception("Contract demand can't be 0 !");
 						if("URBAN".equals(currentRecord.getPremise_type()))
 							nscStagingMigration.setSub_category_code(Long.parseLong(tariffMapping.getNgbUrbanSubcategory2()));
 						else if("RURAL".equals(currentRecord.getPremise_type()))
 							nscStagingMigration.setSub_category_code(Long.parseLong(tariffMapping.getNgbRuralSubcategory2()));												
+						
 					}						
 				}else if(currentRecord.getOld_trf_catg().trim().startsWith("LV4")) {
+					
 					if(!"HP".equals(currentRecord.getSanctioned_load_unit()))
 						throw new Exception("Invalid sanctioned load unit for LV4 tariff category !!");
 					if(currentRecord.getContract_demand().compareTo(BigDecimal.ZERO)==0)
@@ -390,6 +448,7 @@ public class Migration {
 						nscStagingMigration.setSub_category_code(Long.parseLong(tariffMapping.getNgbUrbanSubcategory2()));
 					else if("RURAL".equals(currentRecord.getPremise_type()))
 						nscStagingMigration.setSub_category_code(Long.parseLong(tariffMapping.getNgbRuralSubcategory2()));					
+					
 				}
 				
 				//save nsc staging migration object

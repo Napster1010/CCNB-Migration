@@ -25,7 +25,7 @@
         <property name="connection.driver_class">org.postgresql.Driver</property>
         <property name="connection.url">jdbc:postgresql://localhost:5432/magar</property>
         <property name="connection.username">postgres</property>
-        <property name="connection.password">1010</property>
+        <property name="connection.password">root</property>
         <property name="hibernate.default_schema">ngb</property>
 
         <!-- JDBC connection pool (use the built-in) -->

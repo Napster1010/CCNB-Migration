@@ -244,6 +244,9 @@ public class CCNBNSCStagingMigration {
       @Column(name = "affiliated_consumer_no")
 	  private String affiliatedConsumerNo;
       
+      @Column(name = "created_by")
+      private String createdBy;
+
       @Column(name = "is_saral")
       private boolean isSaral;
       
@@ -268,11 +271,41 @@ public class CCNBNSCStagingMigration {
       @Column(name = "pdc_date")
 	  private Date pdcDate;
       
-      @Column(name = "created_by")
-      private String createdBy;
-
+      @Column(name = "is_pdc_sa_active")
+      private boolean isPdcSaActive;
+      
+      @Column(name = "meter_ctr_ratio")
+      private String meterCtrRatio;
+      
+      @Column(name = "meter_rent")
+      private String meterRent;
+      
+      @Column(name = "sa_type")
+      private String saType;
+      
+      @Column(name = "last_bill_month")
+      private String lastBillMonth;
+      
+      @Column(name = "last_bill_date")
+      private Date lastBillDate;
+      
+      @Column(name = "is_karmkaar")
+      private String isKarmkaar;
+            
       @Column(name = "migrated")
       private boolean migrated;
+      
+      @Column(name = "saral_migrated")
+      private boolean saralMigrated;
+      
+      @Column(name = "bill_mafi_migrated")
+      private boolean billMafiMigrated;
+      
+      @Column(name = "saubhagya_migrated")
+      private boolean saubhagyaMigrated;
+      
+      @Column(name = "group_rd_migrated")
+      private boolean groupRdMigrated;
 
 	public long getId() {
 		return id;
@@ -1162,6 +1195,14 @@ public class CCNBNSCStagingMigration {
 		this.affiliatedConsumerNo = affiliatedConsumerNo;
 	}
 
+	public String getCreatedBy() {
+		return createdBy;
+	}
+
+	public void setCreatedBy(String createdBy) {
+		this.createdBy = createdBy;
+	}
+
 	public boolean isSaral() {
 		return isSaral;
 	}
@@ -1226,12 +1267,60 @@ public class CCNBNSCStagingMigration {
 		this.pdcDate = pdcDate;
 	}
 
-	public String getCreatedBy() {
-		return createdBy;
+	public boolean isPdcSaActive() {
+		return isPdcSaActive;
 	}
 
-	public void setCreatedBy(String createdBy) {
-		this.createdBy = createdBy;
+	public void setPdcSaActive(boolean isPdcSaActive) {
+		this.isPdcSaActive = isPdcSaActive;
+	}
+
+	public String getMeterCtrRatio() {
+		return meterCtrRatio;
+	}
+
+	public void setMeterCtrRatio(String meterCtrRatio) {
+		this.meterCtrRatio = meterCtrRatio;
+	}
+
+	public String getMeterRent() {
+		return meterRent;
+	}
+
+	public void setMeterRent(String meterRent) {
+		this.meterRent = meterRent;
+	}
+
+	public String getSaType() {
+		return saType;
+	}
+
+	public void setSaType(String saType) {
+		this.saType = saType;
+	}
+
+	public String getLastBillMonth() {
+		return lastBillMonth;
+	}
+
+	public void setLastBillMonth(String lastBillMonth) {
+		this.lastBillMonth = lastBillMonth;
+	}
+
+	public Date getLastBillDate() {
+		return lastBillDate;
+	}
+
+	public void setLastBillDate(Date lastBillDate) {
+		this.lastBillDate = lastBillDate;
+	}
+
+	public String getIsKarmkaar() {
+		return isKarmkaar;
+	}
+
+	public void setIsKarmkaar(String isKarmkaar) {
+		this.isKarmkaar = isKarmkaar;
 	}
 
 	public boolean isMigrated() {
@@ -1240,6 +1329,38 @@ public class CCNBNSCStagingMigration {
 
 	public void setMigrated(boolean migrated) {
 		this.migrated = migrated;
+	}
+
+	public boolean isSaralMigrated() {
+		return saralMigrated;
+	}
+
+	public void setSaralMigrated(boolean saralMigrated) {
+		this.saralMigrated = saralMigrated;
+	}
+
+	public boolean isBillMafiMigrated() {
+		return billMafiMigrated;
+	}
+
+	public void setBillMafiMigrated(boolean billMafiMigrated) {
+		this.billMafiMigrated = billMafiMigrated;
+	}
+
+	public boolean isSaubhagyaMigrated() {
+		return saubhagyaMigrated;
+	}
+
+	public void setSaubhagyaMigrated(boolean saubhagyaMigrated) {
+		this.saubhagyaMigrated = saubhagyaMigrated;
+	}
+
+	public boolean isGroupRdMigrated() {
+		return groupRdMigrated;
+	}
+
+	public void setGroupRdMigrated(boolean groupRdMigrated) {
+		this.groupRdMigrated = groupRdMigrated;
 	}
 
 	@Override
@@ -1290,11 +1411,85 @@ public class CCNBNSCStagingMigration {
 				+ ", purpose_of_installation_id=" + purpose_of_installation_id + ", sd_enhance_cd=" + sd_enhance_cd
 				+ ", dishnrd_chq_flg=" + dishnrd_chq_flg + ", status=" + status + ", isAffiliated=" + isAffiliated
 				+ ", isAffiliatedConsumer=" + isAffiliatedConsumer + ", affiliatedConsumerNo=" + affiliatedConsumerNo
-				+ ", isSaral=" + isSaral + ", isBillMafi=" + isBillMafi + ", shramikNo=" + shramikNo
-				+ ", purposeOfInstallationCD=" + purposeOfInstallationCD + ", ccnbPurposeOfInstallation="
+				+ ", createdBy=" + createdBy + ", isSaral=" + isSaral + ", isBillMafi=" + isBillMafi + ", shramikNo="
+				+ shramikNo + ", purposeOfInstallationCD=" + purposeOfInstallationCD + ", ccnbPurposeOfInstallation="
 				+ ccnbPurposeOfInstallation + ", meterType=" + meterType + ", meterCapacity=" + meterCapacity
-				+ ", pdcDate=" + pdcDate + ", createdBy=" + createdBy + ", migrated=" + migrated + "]";
-	}      
+				+ ", pdcDate=" + pdcDate + ", isPdcSaActive=" + isPdcSaActive + ", meterCtrRatio=" + meterCtrRatio
+				+ ", meterRent=" + meterRent + ", saType=" + saType + ", lastBillMonth=" + lastBillMonth
+				+ ", lastBillDate=" + lastBillDate + ", isKarmkaar=" + isKarmkaar + ", migrated=" + migrated
+				+ ", saralMigrated=" + saralMigrated + ", billMafiMigrated=" + billMafiMigrated + ", saubhagyaMigrated="
+				+ saubhagyaMigrated + ", groupRdMigrated=" + groupRdMigrated + ", getId()=" + getId()
+				+ ", getConnection_date()=" + getConnection_date() + ", getConsumer_name()=" + getConsumer_name()
+				+ ", getConsumer_name_h()=" + getConsumer_name_h() + ", getRelative_name()=" + getRelative_name()
+				+ ", getRelation()=" + getRelation() + ", isIs_bpl()=" + isIs_bpl() + ", getBpl_no()=" + getBpl_no()
+				+ ", getCategory()=" + getCategory() + ", isIs_employee()=" + isIs_employee()
+				+ ", getEmployee_company()=" + getEmployee_company() + ", getEmployee_no()=" + getEmployee_no()
+				+ ", getAddress_1()=" + getAddress_1() + ", getAddress_2()=" + getAddress_2() + ", getAddress_3()="
+				+ getAddress_3() + ", getAddress_1_h()=" + getAddress_1_h() + ", getAddress_2_h()=" + getAddress_2_h()
+				+ ", getAddress_3_h()=" + getAddress_3_h() + ", getPrimary_mobile_no()=" + getPrimary_mobile_no()
+				+ ", getAlternate_mobile_no()=" + getAlternate_mobile_no() + ", getAadhaar_no()=" + getAadhaar_no()
+				+ ", getPan()=" + getPan() + ", getBank_account_no()=" + getBank_account_no()
+				+ ", getBank_account_holder_name()=" + getBank_account_holder_name() + ", getBank_name()="
+				+ getBank_name() + ", getIfsc()=" + getIfsc() + ", getEmail_address()=" + getEmail_address()
+				+ ", getTariff_category()=" + getTariff_category() + ", getConnection_type()=" + getConnection_type()
+				+ ", getMetering_status()=" + getMetering_status() + ", getPremise_type()=" + getPremise_type()
+				+ ", getSanctioned_load()=" + getSanctioned_load() + ", getSanctioned_load_unit()="
+				+ getSanctioned_load_unit() + ", getContract_demand()=" + getContract_demand()
+				+ ", getContract_demand_unit()=" + getContract_demand_unit() + ", isIs_seasonal()=" + isIs_seasonal()
+				+ ", getSeason_start_date()=" + getSeason_start_date() + ", getSeason_end_date()="
+				+ getSeason_end_date() + ", getSeason_start_bill_month()=" + getSeason_start_bill_month()
+				+ ", getSeason_end_bill_month()=" + getSeason_end_bill_month() + ", getPurpose_of_installation()="
+				+ getPurpose_of_installation() + ", getTariff_code()=" + getTariff_code() + ", getSub_category_code()="
+				+ getSub_category_code() + ", getPhase()=" + getPhase() + ", getTc_start_date()=" + getTc_start_date()
+				+ ", getTc_end_date()=" + getTc_end_date() + ", isIs_government()=" + isIs_government()
+				+ ", getGovernment_type()=" + getGovernment_type() + ", getPlot_size()=" + getPlot_size()
+				+ ", getPlot_size_unit()=" + getPlot_size_unit() + ", getLocation_code()=" + getLocation_code()
+				+ ", isIs_xray()=" + isIs_xray() + ", getXray_load()=" + getXray_load()
+				+ ", getNo_of_dental_xray_machine()=" + getNo_of_dental_xray_machine()
+				+ ", getNo_of_single_phase_xray_machine()=" + getNo_of_single_phase_xray_machine()
+				+ ", getNo_of_three_phase_xray_machine()=" + getNo_of_three_phase_xray_machine()
+				+ ", isIs_welding_transformer_surcharge()=" + isIs_welding_transformer_surcharge()
+				+ ", isIs_capacitor_surcharge()=" + isIs_capacitor_surcharge() + ", isIs_demandside()="
+				+ isIs_demandside() + ", getIsi_motor_type()=" + getIsi_motor_type() + ", getDtr_name()="
+				+ getDtr_name() + ", getPole_no()=" + getPole_no() + ", getPole_latitude()=" + getPole_latitude()
+				+ ", getPole_longitude()=" + getPole_longitude() + ", getFeeder_name()=" + getFeeder_name()
+				+ ", getPole_distance()=" + getPole_distance() + ", getArea_status()=" + getArea_status()
+				+ ", getGroup_no()=" + getGroup_no() + ", getReading_diary_no()=" + getReading_diary_no()
+				+ ", getNeighbour_connection_no()=" + getNeighbour_connection_no() + ", getSurvey_date()="
+				+ getSurvey_date() + ", getMeter_identifier()=" + getMeter_identifier() + ", getStart_read()="
+				+ getStart_read() + ", isHas_ctr()=" + isHas_ctr() + ", getCtr_identifier()=" + getCtr_identifier()
+				+ ", getCtr_overall_mf()=" + getCtr_overall_mf() + ", getMeter_installation_date()="
+				+ getMeter_installation_date() + ", getMeter_installer_name()=" + getMeter_installer_name()
+				+ ", getMeter_installer_designation()=" + getMeter_installer_designation() + ", isHas_modem()="
+				+ isHas_modem() + ", getModem_no()=" + getModem_no() + ", getSim_no()=" + getSim_no()
+				+ ", getDate_of_registration()=" + getDate_of_registration() + ", getRegistration_fee_amount()="
+				+ getRegistration_fee_amount() + ", getRegistration_fee_amount_mr_no()="
+				+ getRegistration_fee_amount_mr_no() + ", getSecurity_deposit_amount()=" + getSecurity_deposit_amount()
+				+ ", getSecurity_deposit_amount_mr_no()=" + getSecurity_deposit_amount_mr_no() + ", getPortal_name()="
+				+ getPortal_name() + ", getPortal_reference_no()=" + getPortal_reference_no() + ", getCreated_on()="
+				+ getCreated_on() + ", getOld_cons_no()=" + getOld_cons_no() + ", getOld_gr_no()=" + getOld_gr_no()
+				+ ", getOld_rd_no()=" + getOld_rd_no() + ", getOld_trf_catg()=" + getOld_trf_catg()
+				+ ", getOld_rev_catg()=" + getOld_rev_catg() + ", getTotal_outstanding()=" + getTotal_outstanding()
+				+ ", getPrev_arrear()=" + getPrev_arrear() + ", getPend_surcharge()=" + getPend_surcharge()
+				+ ", getCurr_surcharge()=" + getCurr_surcharge() + ", getColl_surcharge()=" + getColl_surcharge()
+				+ ", getPfl_bill_amount()=" + getPfl_bill_amount() + ", getMf()=" + getMf() + ", isIs_beneficiary()="
+				+ isIs_beneficiary() + ", getNrev_catg()=" + getNrev_catg() + ", getPurpose_of_installation_id()="
+				+ getPurpose_of_installation_id() + ", getSd_enhance_cd()=" + getSd_enhance_cd()
+				+ ", getDishnrd_chq_flg()=" + getDishnrd_chq_flg() + ", getStatus()=" + getStatus()
+				+ ", isAffiliated()=" + isAffiliated() + ", isAffiliatedConsumer()=" + isAffiliatedConsumer()
+				+ ", getAffiliatedConsumerNo()=" + getAffiliatedConsumerNo() + ", getCreatedBy()=" + getCreatedBy()
+				+ ", isSaral()=" + isSaral() + ", isBillMafi()=" + isBillMafi() + ", getShramikNo()=" + getShramikNo()
+				+ ", getPurposeOfInstallationCD()=" + getPurposeOfInstallationCD() + ", getCcnbPurposeOfInstallation()="
+				+ getCcnbPurposeOfInstallation() + ", getMeterType()=" + getMeterType() + ", getMeterCapacity()="
+				+ getMeterCapacity() + ", getPdcDate()=" + getPdcDate() + ", isPdcSaActive()=" + isPdcSaActive()
+				+ ", getMeterCtrRatio()=" + getMeterCtrRatio() + ", getMeterRent()=" + getMeterRent() + ", getSaType()="
+				+ getSaType() + ", getLastBillMonth()=" + getLastBillMonth() + ", getLastBillDate()="
+				+ getLastBillDate() + ", getIsKarmkaar()=" + getIsKarmkaar() + ", isMigrated()=" + isMigrated()
+				+ ", isSaralMigrated()=" + isSaralMigrated() + ", isBillMafiMigrated()=" + isBillMafiMigrated()
+				+ ", isSaubhagyaMigrated()=" + isSaubhagyaMigrated() + ", isGroupRdMigrated()=" + isGroupRdMigrated()
+				+ ", getClass()=" + getClass() + ", hashCode()=" + hashCode() + ", toString()=" + super.toString()
+				+ "]";
+	}     
 }
 
 
