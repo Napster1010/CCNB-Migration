@@ -20,7 +20,7 @@ public class TariffMigration {
 	public static void main(String[] args) throws Exception{
 		SessionFactory sessionFactory = new Configuration().configure().buildSessionFactory();
 		Session session = sessionFactory.openSession();
-		File excel = new File("C:\\Users\\Napster\\Documents\\ccnb_migration_excel\\Excel\\Purpose_of_Instalation (2).xlsx");
+		File excel = new File("C:\\Users\\Napster\\Documents\\ccnb_migration_excel\\Excel\\Purpose_of_Instalation_Modi_Vr_1.xlsx");
     	InputStream is = new FileInputStream(excel);
     	Workbook workbook = StreamingReader.builder()
     	        .rowCacheSize(100)    

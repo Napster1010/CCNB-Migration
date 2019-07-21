@@ -29,7 +29,7 @@ public class NSCStagingExcelMigrator {
     {        
 		//For creating an exception Text File
 		long exceptionCount=0;
-		File file = new File("C:\\Users\\Napster\\Documents\\ccnb_migration_excel\\Exception_Log\\NSCStagingMigrationExceptionLog.txt");
+		File file = new File("C:\\Users\\Napster\\Documents\\ccnb_migration_excel\\Exception_Log\\NSCStagingExcelMigrationExceptionLog.txt");
 		FileWriter fw=null;
 		BufferedWriter bw = null;
 		PrintWriter writer = null;

@@ -128,10 +128,6 @@ public class Migration {
 				else if("N".equals(currentRecord.getMetering_status().trim()))
 					nscStagingMigration.setMetering_status("UNMETERED");
 				
-				nscStagingMigration.setPurpose_of_installation(tariffMapping.getNgbPurposeOfInstallation());
-				
-				nscStagingMigration.setPurpose_of_installation_id(Long.parseLong(tariffMapping.getNgbPurposeId()));
-				
 				if("SC/ST".equals(currentRecord.getCategory().trim()))
 					nscStagingMigration.setCategory("ST");
 				else if("NOT DISCLOSED".equals(currentRecord.getCategory().trim()))
@@ -139,8 +135,6 @@ public class Migration {
 				else
 					nscStagingMigration.setCategory(currentRecord.getCategory().trim());
 
-				nscStagingMigration.setTariff_code(tariffMapping.getNgbTariffCode());
-				
 				nscStagingMigration.setLocation_code(currentRecord.getLocation_code());
 				
 				nscStagingMigration.setOld_cons_no(currentRecord.getOld_cons_no());
@@ -396,59 +390,20 @@ public class Migration {
 				else
 					throw new Exception("Invalid status!");
 				
-				//Subcategory code only handeled for domestic as of now
-				if(currentRecord.getOld_trf_catg().trim().startsWith("LV1.1")) {
-					if(currentRecord.getSanctioned_load().compareTo(new BigDecimal(0.1))>0)
-						throw new Exception("Load can't be greater than 0.1 for LV1.1 !");
-				}
-				
-				if(currentRecord.getOld_trf_catg().trim().startsWith("LV1")) {
-					
-					if(!"KW".equals(currentRecord.getSanctioned_load_unit()))
-						throw new Exception("Invalid sanctioned load unit for LV1 tariff category !!");
 
-					if("URBAN".equals(currentRecord.getPremise_type()))
-						nscStagingMigration.setSub_category_code(Long.parseLong(tariffMapping.getNgbUrbanSubcategory1()));
-					else if("RURAL".equals(currentRecord.getPremise_type()))
-						nscStagingMigration.setSub_category_code(Long.parseLong(tariffMapping.getNgbRuralSubcategory1()));
-					
-				}else if(currentRecord.getOld_trf_catg().trim().startsWith("LV3")) {
-					if("CM_IPMPW".equals(currentRecord.getSaType()) || "CM_BPMPW".equals(currentRecord.getSaType()) || "CM_JPMPW".equals(currentRecord.getSaType())) {
-						/////////////////////////////////////////////////////////////
+				//Check if we have a tariff mapping available or not
+				if(tariffMapping==null) {
+					if(currentRecord.getOld_trf_catg().trim().startsWith("LV3")) {						
+						//For LV3
+						decideTariffForLV3(nscStagingMigration, currentRecord);
+						
+					}else if(currentRecord.getOld_trf_catg().trim().startsWith("LV5")) {						
+						//For LV5
+						decideTariffForLV5(nscStagingMigration, currentRecord);
+						
 					}
-				}else if(currentRecord.getOld_trf_catg().trim().startsWith("LV2")) {
-					
-					if(!"KW".equals(currentRecord.getSanctioned_load_unit()))
-						throw new Exception("Invalid sanctioned load unit for LV2 tariff category !!");
-
-					if(currentRecord.getSanctioned_load().compareTo(new BigDecimal(10))<=0) {
-						if("URBAN".equals(currentRecord.getPremise_type()))
-							nscStagingMigration.setSub_category_code(Long.parseLong(tariffMapping.getNgbUrbanSubcategory1()));
-						else if("RURAL".equals(currentRecord.getPremise_type()))
-							nscStagingMigration.setSub_category_code(Long.parseLong(tariffMapping.getNgbRuralSubcategory1()));						
-						
-					}else {
-						
-						if(currentRecord.getContract_demand().compareTo(BigDecimal.ZERO)==0)
-							throw new Exception("Contract demand can't be 0 !");
-						if("URBAN".equals(currentRecord.getPremise_type()))
-							nscStagingMigration.setSub_category_code(Long.parseLong(tariffMapping.getNgbUrbanSubcategory2()));
-						else if("RURAL".equals(currentRecord.getPremise_type()))
-							nscStagingMigration.setSub_category_code(Long.parseLong(tariffMapping.getNgbRuralSubcategory2()));												
-						
-					}						
-				}else if(currentRecord.getOld_trf_catg().trim().startsWith("LV4")) {
-					
-					if(!"HP".equals(currentRecord.getSanctioned_load_unit()))
-						throw new Exception("Invalid sanctioned load unit for LV4 tariff category !!");
-					if(currentRecord.getContract_demand().compareTo(BigDecimal.ZERO)==0)
-						throw new Exception("Contract demand can't be 0 !");
-					
-					if("URBAN".equals(currentRecord.getPremise_type()))
-						nscStagingMigration.setSub_category_code(Long.parseLong(tariffMapping.getNgbUrbanSubcategory2()));
-					else if("RURAL".equals(currentRecord.getPremise_type()))
-						nscStagingMigration.setSub_category_code(Long.parseLong(tariffMapping.getNgbRuralSubcategory2()));					
-					
+				}else {
+					decideTariffFromTariffMapping(nscStagingMigration, currentRecord, tariffMapping);
 				}
 				
 				//save nsc staging migration object
@@ -547,4 +502,294 @@ public class Migration {
 		return index;
 	}
 	
+	private static void decideTariffForLV3(NSCStagingMigration nscStagingMigration, CCNBNSCStagingMigration currentRecord) throws Exception{
+		nscStagingMigration.setTariff_category("LV3");
+		
+		if(currentRecord.getOld_trf_catg().trim().equals("LV3.1.A") || currentRecord.getOld_trf_catg().trim().equals("LV3.1A-B") || currentRecord.getOld_trf_catg().trim().equals("LV3.1A-I")) {
+			
+			nscStagingMigration.setPurpose_of_installation_id(52);
+			nscStagingMigration.setTariff_code("LV3.1");
+			nscStagingMigration.setPurpose_of_installation("Public Utility Water Supply Schemes");
+			
+			if("URBAN".equals(currentRecord.getPremise_type()))
+				nscStagingMigration.setSub_category_code(301);
+			else
+				throw new Exception("Couldn't find a suitable subcategory code!!");			
+
+		}else if(currentRecord.getOld_trf_catg().trim().equals("LV3.1A.T") || currentRecord.getOld_trf_catg().trim().equals("LV3.1B.T")) {
+			
+			nscStagingMigration.setPurpose_of_installation_id(63);
+			nscStagingMigration.setTariff_code("LV3.1T");				
+			nscStagingMigration.setPurpose_of_installation("Temporary Public Water Works");
+			
+			if("URBAN".equals(currentRecord.getPremise_type()))
+				nscStagingMigration.setSub_category_code(304);
+			else
+				throw new Exception("Couldn't find a suitable subcategory code!!");			
+		
+		}else if(currentRecord.getOld_trf_catg().trim().equals("LV3.1.B") || currentRecord.getOld_trf_catg().trim().equals("LV3.1B-B") || currentRecord.getOld_trf_catg().trim().equals("LV3.1B-I")) {
+			
+			nscStagingMigration.setPurpose_of_installation_id(52);
+			nscStagingMigration.setTariff_code("LV3.1");
+			nscStagingMigration.setPurpose_of_installation("Public Utility Water Supply Schemes");
+			
+			if("URBAN".equals(currentRecord.getPremise_type()))
+				nscStagingMigration.setSub_category_code(302);
+			else
+				throw new Exception("Couldn't find a suitable subcategory code!!");			
+		
+		}else if(currentRecord.getOld_trf_catg().trim().equals("LV3.1.C") || currentRecord.getOld_trf_catg().trim().equals("LV3.1C-B") || currentRecord.getOld_trf_catg().trim().equals("LV3.1C-I")) {
+			
+			nscStagingMigration.setPurpose_of_installation_id(52);
+			nscStagingMigration.setTariff_code("LV3.1");
+			nscStagingMigration.setPurpose_of_installation("Public Utility Water Supply Schemes");
+			
+			if("RURAL".equals(currentRecord.getPremise_type()))
+				nscStagingMigration.setSub_category_code(303);
+			else
+				throw new Exception("Couldn't find a suitable subcategory code!!");			
+			
+		}else if(currentRecord.getOld_trf_catg().trim().equals("LV3.1C.T")) {
+			
+			nscStagingMigration.setPurpose_of_installation_id(63);
+			nscStagingMigration.setTariff_code("LV3.1T");				
+			nscStagingMigration.setPurpose_of_installation("Temporary Public Water Works");
+			
+			if("RURAL".equals(currentRecord.getPremise_type()))
+				nscStagingMigration.setSub_category_code(305);
+			else
+				throw new Exception("Couldn't find a suitable subcategory code!!");			
+		
+		}else if(currentRecord.getOld_trf_catg().trim().equals("LV3.2.A") || currentRecord.getOld_trf_catg().trim().equals("LV3.2A-B") || currentRecord.getOld_trf_catg().trim().equals("LV3.2A-I")) {
+			
+			nscStagingMigration.setPurpose_of_installation_id(57);
+			nscStagingMigration.setTariff_code("LV3.2");							
+			nscStagingMigration.setPurpose_of_installation("Public street Lights");
+			
+			if("URBAN".equals(currentRecord.getPremise_type()))
+				nscStagingMigration.setSub_category_code(306);
+			else
+				throw new Exception("Couldn't find a suitable subcategory code!!");			
+		
+		}else if(currentRecord.getOld_trf_catg().trim().equals("LV3.2.B") || currentRecord.getOld_trf_catg().trim().equals("LV3.2B-B") || currentRecord.getOld_trf_catg().trim().equals("LV3.2B-I")) {
+			
+			nscStagingMigration.setPurpose_of_installation_id(57);
+			nscStagingMigration.setTariff_code("LV3.2");							
+			nscStagingMigration.setPurpose_of_installation("Public street Lights");
+			
+			if("URBAN".equals(currentRecord.getPremise_type()))
+				nscStagingMigration.setSub_category_code(307);
+			else
+				throw new Exception("Couldn't find a suitable subcategory code!!");			
+		
+		}else if(currentRecord.getOld_trf_catg().trim().equals("LV3.2.C") || currentRecord.getOld_trf_catg().trim().equals("LV3.2C-B") || currentRecord.getOld_trf_catg().trim().equals("LV3.2C-I")) {
+			
+			nscStagingMigration.setPurpose_of_installation_id(57);
+			nscStagingMigration.setTariff_code("LV3.2");							
+			nscStagingMigration.setPurpose_of_installation("Public street Lights");
+			
+			if("RURAL".equals(currentRecord.getPremise_type()))
+				nscStagingMigration.setSub_category_code(308);
+			else
+				throw new Exception("Couldn't find a suitable subcategory code!!");			
+		
+		}		
+	}
+	
+	private static void decideTariffForLV5(NSCStagingMigration nscStagingMigration, CCNBNSCStagingMigration currentRecord) throws Exception{
+		String ccnbTariffCategory = currentRecord.getOld_trf_catg().trim();
+		String ccnbPurposeOfInstallation =  currentRecord.getPurpose_of_installation().trim();
+		String ccnbPurposeOfInstallationCd = currentRecord.getPurposeOfInstallationCD().trim();
+		String phase = currentRecord.getPhase().trim();
+		String premiseType = currentRecord.getPremise_type().trim();
+		nscStagingMigration.setTariff_category("LV5");
+		
+		if((ccnbTariffCategory.equals("LV5.1B") || ccnbTariffCategory.equals("LV5.1B3") || ccnbTariffCategory.equals("LV5.2.B") || ccnbTariffCategory.equals("LV5.2.B3")) && ccnbPurposeOfInstallationCd.equals("CM_USAGO") && ccnbPurposeOfInstallation.equals("TEMP_AG_UM")) {
+			nscStagingMigration.setPurpose_of_installation_id(141);
+			nscStagingMigration.setPurpose_of_installation("Flat Rate Temporary");
+			nscStagingMigration.setTariff_code("LV5.1BT.UM");
+
+			if(phase.equals("THREE")) {
+				if("URBAN".equals(premiseType))
+					nscStagingMigration.setSub_category_code(517);
+				else if("RURAL".equals(premiseType))
+					nscStagingMigration.setSub_category_code(518);
+				else
+					throw new Exception("Invalid premise type!");
+			}else if(phase.equals("SINGLE")) {
+				if("URBAN".equals(premiseType))
+					nscStagingMigration.setSub_category_code(519);
+				else if("RURAL".equals(premiseType))
+					nscStagingMigration.setSub_category_code(520);				
+				else
+					throw new Exception("Invalid premise type!");
+			}else
+				throw new Exception("Invalid phase!");
+			
+		}else if((ccnbTariffCategory.equals("LV5.1B") || ccnbTariffCategory.equals("LV5.1B3") || ccnbTariffCategory.equals("LV5.2.B") || ccnbTariffCategory.equals("LV5.2.B") || ccnbTariffCategory.equals("LV5.2.B3") || ccnbTariffCategory.equals("LV5.3.2") || ccnbTariffCategory.equals("LV5.3.3")) && ccnbPurposeOfInstallationCd.equals("CM_USTLT") && ccnbPurposeOfInstallation.equals("TEMP_AG_UM")) {
+
+			if(phase.equals("THREE")) {
+				if("URBAN".equals(premiseType))
+					nscStagingMigration.setSub_category_code(517);
+				else if("RURAL".equals(premiseType))
+					nscStagingMigration.setSub_category_code(518);
+				else
+					throw new Exception("Invalid premise type!");
+			}else if(phase.equals("SINGLE")) {
+				if("URBAN".equals(premiseType))
+					nscStagingMigration.setSub_category_code(519);
+				else if("RURAL".equals(premiseType))
+					nscStagingMigration.setSub_category_code(520);				
+				else
+					throw new Exception("Invalid premise type!");
+			}else
+				throw new Exception("Invalid phase!");
+			
+		}else if((ccnbTariffCategory.equals("LV5.2.C") || ccnbTariffCategory.equals("LV5.2A-B") || ccnbTariffCategory.equals("LV5.2A-I") || ccnbTariffCategory.equals("LV5.3") || ccnbTariffCategory.equals("LV5.3.1")) && ccnbPurposeOfInstallationCd.equals("CM_USAGO")) {
+
+			if(ccnbPurposeOfInstallation.equals("AQUACULTURE")) {
+				nscStagingMigration.setPurpose_of_installation_id(127);
+				nscStagingMigration.setPurpose_of_installation("Aquaculture");
+
+			}else if(ccnbPurposeOfInstallation.equals("CTLE_BRDG_FARM")) {
+				nscStagingMigration.setPurpose_of_installation_id(131);
+				nscStagingMigration.setPurpose_of_installation("Cattle breeding farms");
+
+			}else if(ccnbPurposeOfInstallation.equals("DAIRY_OTHR_AGRI")) {				
+				nscStagingMigration.setPurpose_of_installation_id(132);
+				nscStagingMigration.setPurpose_of_installation("Dairy milk extraction/chilling/pasteurization");
+
+			}else if(ccnbPurposeOfInstallation.equals("FISHERIES_PONDS")) {				
+				nscStagingMigration.setPurpose_of_installation_id(126);
+				nscStagingMigration.setPurpose_of_installation("Fisheries ponds");
+
+			}else if(ccnbPurposeOfInstallation.equals("HATCHERIES")) {				
+				nscStagingMigration.setPurpose_of_installation_id(129);
+				nscStagingMigration.setPurpose_of_installation("Hatcheries");
+
+			}else if(ccnbPurposeOfInstallation.equals("POULTRY_FARMS")) {				
+				nscStagingMigration.setPurpose_of_installation_id(130);
+				nscStagingMigration.setPurpose_of_installation("Poultry farms");
+
+			}else if(ccnbPurposeOfInstallation.equals("SERICULTURE")) {				
+				nscStagingMigration.setPurpose_of_installation_id(128);
+				nscStagingMigration.setPurpose_of_installation("Sericulture");
+
+			}else if(ccnbPurposeOfInstallation.equals("OTHER_AGRI")) {				
+				nscStagingMigration.setPurpose_of_installation_id(130);
+				nscStagingMigration.setPurpose_of_installation("Poultry farms");
+
+			}else
+				throw new Exception("No suitable purpose of installation found!");
+			nscStagingMigration.setTariff_code("LV5.3");							
+			if(nscStagingMigration.getSanctioned_load().compareTo(new BigDecimal("25"))<=0 && "HP".equals(nscStagingMigration.getSanctioned_load_unit())) {
+				if("URBAN".equals(premiseType))
+					nscStagingMigration.setSub_category_code(513);
+				else if("RURAL".equals(premiseType))
+					nscStagingMigration.setSub_category_code(514);				
+				else
+					throw new Exception("Invalid premise type!");					
+			}else if(nscStagingMigration.getSanctioned_load().compareTo(new BigDecimal("25"))>0 && "HP".equals(nscStagingMigration.getSanctioned_load_unit()) && (ccnbTariffCategory.equals("LV5.3") || ccnbTariffCategory.equals("LV5.3.1"))) {					
+				if("URBAN".equals(premiseType))
+					nscStagingMigration.setSub_category_code(515);
+				else if("RURAL".equals(premiseType))
+					nscStagingMigration.setSub_category_code(516);				
+				else
+					throw new Exception("Invalid premise type!");					
+			}else
+				throw new Exception("Couldn't find suitable subcategory");
+		}else if(ccnbTariffCategory.equals("LV5.4") && (ccnbPurposeOfInstallationCd.equals("CM_USAGE") || ccnbPurposeOfInstallationCd.equals("CM_USAGO")) && (ccnbPurposeOfInstallation.equals("AGRB") || ccnbPurposeOfInstallation.equals("AGRI_FLAT") || ccnbPurposeOfInstallation.equals("AGRI_PUMP"))) {
+			nscStagingMigration.setPurpose_of_installation_id(101);
+			nscStagingMigration.setPurpose_of_installation("(FLAT RATE) Permanent agricultural pump");
+			nscStagingMigration.setTariff_code("LV5.4");
+
+			if(phase.equals("THREE")) {
+				if("URBAN".equals(premiseType))
+					nscStagingMigration.setSub_category_code(511);
+				else if("RURAL".equals(premiseType))
+					nscStagingMigration.setSub_category_code(512);
+				else
+					throw new Exception("Invalid premise type!");
+			}else if(phase.equals("SINGLE")) {
+				if("URBAN".equals(premiseType))
+					nscStagingMigration.setSub_category_code(509);
+				else if("RURAL".equals(premiseType))
+					nscStagingMigration.setSub_category_code(510);				
+				else
+					throw new Exception("Invalid premise type!");
+			}else
+				throw new Exception("Invalid phase!");			
+		}else
+			throw new Exception("Couldn't find a suitable condition for tariff mapping!");				
+	}
+
+	private static void decideTariffFromTariffMapping(NSCStagingMigration nscStagingMigration, CCNBNSCStagingMigration currentRecord, CcnbNgbTariffMapping tariffMapping) throws Exception {
+		nscStagingMigration.setTariff_code(tariffMapping.getNgbTariffCode());
+		
+		nscStagingMigration.setPurpose_of_installation(tariffMapping.getNgbPurposeOfInstallation());
+		
+		nscStagingMigration.setPurpose_of_installation_id(Long.parseLong(tariffMapping.getNgbPurposeId()));
+		
+		//Subcategory code only handeled for domestic as of now
+		if(currentRecord.getOld_trf_catg().trim().startsWith("LV1.1")) {
+			if(currentRecord.getSanctioned_load().compareTo(new BigDecimal(0.1))>0)
+				throw new Exception("Load can't be greater than 0.1 for LV1.1 !");
+		}
+		
+		if(currentRecord.getOld_trf_catg().trim().startsWith("LV1")) {
+			
+			if(!"KW".equals(currentRecord.getSanctioned_load_unit()))
+				throw new Exception("Invalid sanctioned load unit for LV1 tariff category !!");
+
+			if("URBAN".equals(currentRecord.getPremise_type()))
+				nscStagingMigration.setSub_category_code(Long.parseLong(tariffMapping.getNgbUrbanSubcategory1()));
+			else if("RURAL".equals(currentRecord.getPremise_type()))
+				nscStagingMigration.setSub_category_code(Long.parseLong(tariffMapping.getNgbRuralSubcategory1()));
+			
+		}else if(currentRecord.getOld_trf_catg().trim().startsWith("LV3")) {
+			if("CM_IPMPW".equals(currentRecord.getSaType()) || "CM_BPMPW".equals(currentRecord.getSaType()) || "CM_JPMPW".equals(currentRecord.getSaType())) {
+				/////////////////////////////////////////////////////////////
+			}
+		}else if(currentRecord.getOld_trf_catg().trim().startsWith("LV2")) {
+			
+			if(!"KW".equals(currentRecord.getSanctioned_load_unit()))
+				throw new Exception("Invalid sanctioned load unit for LV2 tariff category !!");
+
+			if(currentRecord.getSanctioned_load().compareTo(new BigDecimal(10))<=0) {
+				if("URBAN".equals(currentRecord.getPremise_type()))
+					nscStagingMigration.setSub_category_code(Long.parseLong(tariffMapping.getNgbUrbanSubcategory1()));
+				else if("RURAL".equals(currentRecord.getPremise_type()))
+					nscStagingMigration.setSub_category_code(Long.parseLong(tariffMapping.getNgbRuralSubcategory1()));						
+				
+			}else {
+				
+				if(currentRecord.getContract_demand().compareTo(BigDecimal.ZERO)==0)
+					throw new Exception("Contract demand can't be 0 !");
+				if("URBAN".equals(currentRecord.getPremise_type()))
+					nscStagingMigration.setSub_category_code(Long.parseLong(tariffMapping.getNgbUrbanSubcategory2()));
+				else if("RURAL".equals(currentRecord.getPremise_type()))
+					nscStagingMigration.setSub_category_code(Long.parseLong(tariffMapping.getNgbRuralSubcategory2()));												
+				
+			}						
+		}else if(currentRecord.getOld_trf_catg().trim().startsWith("LV4")) {
+			
+			if(!"HP".equals(currentRecord.getSanctioned_load_unit()))
+				throw new Exception("Invalid sanctioned load unit for LV4 tariff category !!");
+			if(currentRecord.getContract_demand().compareTo(BigDecimal.ZERO)==0)
+				throw new Exception("Contract demand can't be 0 !");
+			
+			if("URBAN".equals(currentRecord.getPremise_type()))
+				nscStagingMigration.setSub_category_code(Long.parseLong(tariffMapping.getNgbUrbanSubcategory2()));
+			else if("RURAL".equals(currentRecord.getPremise_type()))
+				nscStagingMigration.setSub_category_code(Long.parseLong(tariffMapping.getNgbRuralSubcategory2()));					
+			
+		}else if(currentRecord.getOld_trf_catg().trim().startsWith("LV5")) {
+
+			if("URBAN".equals(currentRecord.getPremise_type()))
+				nscStagingMigration.setSub_category_code(Long.parseLong(tariffMapping.getNgbUrbanSubcategory1()));
+			else if("RURAL".equals(currentRecord.getPremise_type()))
+				nscStagingMigration.setSub_category_code(Long.parseLong(tariffMapping.getNgbRuralSubcategory1()));
+					
+		}
+	}
 }

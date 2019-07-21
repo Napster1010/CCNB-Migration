@@ -50,6 +50,10 @@
         <mapping class="com.ccnb.bean.Zone"/>
         <mapping class="com.ccnb.bean.CTRMaster"/>
         <mapping class="com.ccnb.bean.MeterMaster"/>
+        <mapping class="com.ccnb.bean.CCNBAsd"/>
+        <mapping class="com.ccnb.bean.AdditionalSecurityDeposit"/>
+        <mapping class="com.ccnb.bean.AdditionalSecurityDepositInstallment"/>
+        <mapping class="com.ccnb.bean.ConsumerNoMaster"/>
     </session-factory>
 
 </hibernate-configuration>
