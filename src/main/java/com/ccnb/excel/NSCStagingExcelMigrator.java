@@ -21,6 +21,7 @@ import org.hibernate.cfg.Configuration;
 import org.hibernate.query.Query;
 
 import com.ccnb.bean.CCNBNSCStagingMigration;
+import com.ccnb.util.PathUtil;
 import com.monitorjbl.xlsx.StreamingReader;
 
 public class NSCStagingExcelMigrator {
@@ -29,7 +30,7 @@ public class NSCStagingExcelMigrator {
     {        
 		//For creating an exception Text File
 		long exceptionCount=0;
-		File file = new File("C:\\Users\\Napster\\Documents\\ccnb_migration_excel\\Exception_Log\\NSCStagingExcelMigrationExceptionLog.txt");
+		File file = new File(PathUtil.baseExceptionFolder + "NSCStagingExcelMigrationExceptionLog.txt");
 		FileWriter fw=null;
 		BufferedWriter bw = null;
 		PrintWriter writer = null;
@@ -48,7 +49,7 @@ public class NSCStagingExcelMigrator {
 		}
 		catch(Exception e){}
 		
-		File excel = new File("C:\\Users\\Napster\\Documents\\ccnb_migration_excel\\Excel\\nsc_3424624.xlsx");
+		File excel = new File(PathUtil.baseExcelFolder + "nsc_3424624.xlsx");
     	InputStream is = new FileInputStream(excel);
     	Workbook workbook = StreamingReader.builder()
     	        .rowCacheSize(100)    

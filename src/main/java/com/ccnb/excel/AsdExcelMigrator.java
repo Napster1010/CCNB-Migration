@@ -21,14 +21,17 @@ import org.hibernate.cfg.Configuration;
 
 import com.ccnb.bean.CCNBAsd;
 import com.ccnb.bean.CCNBNSCStagingMigration;
+import com.ccnb.util.PathUtil;
 import com.monitorjbl.xlsx.StreamingReader;
+
+import javassist.bytecode.analysis.Util;
 
 public class AsdExcelMigrator {
 	public static void main(String[] args) throws Exception {
         
 		//For creating an exception Text File
 		long exceptionCount=0;
-		File file = new File("C:\\Users\\Napster\\Documents\\ccnb_migration_excel\\Exception_Log\\AsdExcelMigrationExceptionLog.txt");
+		File file = new File(PathUtil.baseExceptionFolder + "AsdExcelMigrationExceptionLog.txt");
 		FileWriter fw=null;
 		BufferedWriter bw = null;
 		PrintWriter writer = null;
@@ -47,7 +50,7 @@ public class AsdExcelMigrator {
 		}
 		catch(Exception e){}
 		
-		File excel = new File("C:\\Users\\Napster\\Documents\\ccnb_migration_excel\\Excel\\ASD_DTL.xlsx");
+		File excel = new File(PathUtil.baseExcelFolder + "ASD_DTL.xlsx");
     	InputStream is = new FileInputStream(excel);
     	Workbook workbook = StreamingReader.builder()
     	        .rowCacheSize(100)    

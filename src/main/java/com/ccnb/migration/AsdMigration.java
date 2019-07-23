@@ -17,13 +17,14 @@ import com.ccnb.bean.AdditionalSecurityDeposit;
 import com.ccnb.bean.AdditionalSecurityDepositInstallment;
 import com.ccnb.bean.CCNBAsd;
 import com.ccnb.bean.ConsumerNoMaster;
+import com.ccnb.util.PathUtil;
 
 public class AsdMigration {
 
 	public static void main(String[] args) throws Exception {
 		//For creating a exception Text File
 		long exceptionCount=0, recordCount=0;
-		File file = new File("C:\\Users\\Napster\\Documents\\ccnb_migration_excel\\Exception_Log\\AsdMigrationExceptionLog.txt");
+		File file = new File(PathUtil.baseExceptionFolder + "AsdMigrationExceptionLog.txt");
 		FileWriter fw=null;
 		BufferedWriter bw = null;
 		PrintWriter writer = null;

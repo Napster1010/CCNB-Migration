@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.PrintWriter;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -21,6 +22,7 @@ import com.ccnb.bean.MeterMaster;
 import com.ccnb.bean.NSCStagingMigration;
 import com.ccnb.bean.NSCStagingMigrationStatus;
 import com.ccnb.bean.Zone;
+import com.ccnb.util.PathUtil;
 
 public class Migration {
 
@@ -28,7 +30,7 @@ public class Migration {
 
 		//For creating a exception Text File
 		long exceptionCount=0, recordCount=0;
-		File file = new File("C:\\Users\\Napster\\Documents\\ccnb_migration_excel\\Exception_Log\\CcnbMigrationExceptionLog.txt");
+		File file = new File(PathUtil.baseExceptionFolder + "CcnbMigrationExceptionLog.txt");
 		FileWriter fw=null;
 		BufferedWriter bw = null;
 		PrintWriter writer = null;
@@ -184,7 +186,7 @@ public class Migration {
 
 				if(currentRecord.getOld_trf_catg().trim().startsWith("LV4") && "HP".equals(currentRecord.getContract_demand_unit().trim())) {
 					BigDecimal contractDemand = currentRecord.getContract_demand().multiply(new BigDecimal(0.746));
-					contractDemand = contractDemand.setScale(3, BigDecimal.ROUND_HALF_UP);
+					contractDemand = contractDemand.setScale(3, RoundingMode.HALF_UP);
 					
 					nscStagingMigration.setContract_demand(contractDemand);
 					nscStagingMigration.setContract_demand_unit("KW");
@@ -194,11 +196,15 @@ public class Migration {
 				if(currentRecord.getOld_trf_catg().startsWith("LV2")) {
 					if(currentRecord.getSanctioned_load().compareTo(new BigDecimal(10))>0 && currentRecord.getSanctioned_load().compareTo(currentRecord.getContract_demand())<0)
 						throw new Exception("Sanctioned load can't be less than the contract demand!");
+					if(currentRecord.getSanctioned_load().compareTo(new BigDecimal(10))>0 && currentRecord.getSanctioned_load().compareTo(BigDecimal.ZERO)==0)
+						throw new Exception("Contract demand can't be zero for LV2!");
 				}else if(currentRecord.getOld_trf_catg().startsWith("LV4")) {
 					BigDecimal sanctionedLoad = currentRecord.getSanctioned_load().multiply(new BigDecimal(0.746));
-					sanctionedLoad = sanctionedLoad.setScale(3, BigDecimal.ROUND_HALF_UP);
-					if(sanctionedLoad.compareTo(currentRecord.getContract_demand())<0)
+					sanctionedLoad = sanctionedLoad.setScale(3, RoundingMode.HALF_UP);
+					if(sanctionedLoad.compareTo(nscStagingMigration.getContract_demand())<0)
 						throw new Exception("Sanctioned load can't be less than the contract demand!");
+					if(sanctionedLoad.compareTo(BigDecimal.ZERO)==0)
+						throw new Exception("Contract demand can't be zero for LV4!");
 				}
 				
 				nscStagingMigration.setTotal_outstanding(currentRecord.getTotal_outstanding());
@@ -263,7 +269,18 @@ public class Migration {
 				
 				nscStagingMigration.setIs_seasonal(currentRecord.isIs_seasonal());
 				
-				nscStagingMigration.setPhase(currentRecord.getPhase());
+				//Check phase based on the load
+				if("HP".equals(currentRecord.getSanctioned_load_unit())) {
+					if(currentRecord.getSanctioned_load().compareTo(new BigDecimal("2.5"))>0)
+						currentRecord.setPhase("THREE");
+					else
+						currentRecord.setPhase("SINGLE");
+				}else if("KW".equals(currentRecord.getSanctioned_load_unit())) {
+					if(currentRecord.getSanctioned_load().compareTo(new BigDecimal("3"))>0)
+						currentRecord.setPhase("THREE");
+					else
+						currentRecord.setPhase("SINGLE");					
+				}
 				
 				nscStagingMigration.setIs_government(currentRecord.isIs_government());
 				
@@ -475,8 +492,8 @@ public class Migration {
 		boolean check = currentRecord.getConsumer_name()==null ||
 						currentRecord.getConsumer_name().trim().isEmpty() ||
 
-						currentRecord.getCategory()==null || 
-						currentRecord.getCategory().trim().isEmpty() || 
+						((currentRecord.getCategory()==null || 
+						currentRecord.getCategory().trim().isEmpty()) && !currentRecord.getOld_trf_catg().startsWith("LV3")) || 
 						
 						currentRecord.getConnection_type()==null ||
 						currentRecord.getConnection_type().trim().isEmpty() ||
@@ -493,8 +510,8 @@ public class Migration {
 						currentRecord.getSanctioned_load_unit()==null || 						
 						currentRecord.getSanctioned_load_unit().trim().isEmpty() || 						
 
-						currentRecord.getCcnbPurposeOfInstallation()==null ||
-						currentRecord.getCcnbPurposeOfInstallation().trim().isEmpty() ||
+						((currentRecord.getCcnbPurposeOfInstallation()==null ||
+						currentRecord.getCcnbPurposeOfInstallation().trim().isEmpty()) && !currentRecord.getOld_trf_catg().startsWith("LV3")) ||
 
 						currentRecord.getLocation_code()==null || 
 						currentRecord.getLocation_code().trim().isEmpty() || 
@@ -511,8 +528,8 @@ public class Migration {
 						currentRecord.getOld_trf_catg()==null || 
 						currentRecord.getOld_trf_catg().trim().isEmpty() || 
 
-						currentRecord.getPurposeOfInstallationCD()==null ||
-						currentRecord.getPurposeOfInstallationCD().trim().isEmpty() ||
+						((currentRecord.getPurposeOfInstallationCD()==null ||
+						currentRecord.getPurposeOfInstallationCD().trim().isEmpty()) && !currentRecord.getOld_trf_catg().startsWith("LV3")) ||
 
 						currentRecord.getStatus()==null ||
 						currentRecord.getStatus().trim().isEmpty() ||
@@ -625,7 +642,8 @@ public class Migration {
 			else
 				throw new Exception("Couldn't find a suitable subcategory code!!");			
 		
-		}		
+		}else
+			throw new Exception("Couldn't find a suitable tariff for the consumer!");
 	}
 	
 	private static void decideTariffForLV5(NSCStagingMigration nscStagingMigration, CCNBNSCStagingMigration currentRecord) throws Exception{
@@ -756,7 +774,7 @@ public class Migration {
 			}else
 				throw new Exception("Invalid phase!");			
 		}else
-			throw new Exception("Couldn't find a suitable condition for tariff mapping!");				
+			throw new Exception("Couldn't find a suitable tariff for the consumer!");
 	}
 
 	private static void decideTariffFromTariffMapping(NSCStagingMigration nscStagingMigration, CCNBNSCStagingMigration currentRecord, CcnbNgbTariffMapping tariffMapping) throws Exception {
@@ -826,6 +844,7 @@ public class Migration {
 			else if("RURAL".equals(currentRecord.getPremise_type()))
 				nscStagingMigration.setSub_category_code(Long.parseLong(tariffMapping.getNgbRuralSubcategory1()));
 					
-		}
+		}else
+			throw new Exception("Couldn't find a suitable tariff for the consumer!");
 	}
 }
