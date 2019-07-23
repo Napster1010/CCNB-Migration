@@ -234,7 +234,7 @@ public class Migration {
 				nscStagingMigration.setIs_bpl(currentRecord.isIs_bpl());
 				
 				if(currentRecord.isIs_bpl()) {
-					if(currentRecord.getBpl_no().trim().isEmpty())
+					if(currentRecord.getBpl_no()==null || currentRecord.getBpl_no().trim().isEmpty())
 						nscStagingMigration.setBpl_no("MIG".concat(currentRecord.getOld_cons_no()));
 					else
 						nscStagingMigration.setBpl_no(currentRecord.getBpl_no());					
@@ -432,6 +432,7 @@ public class Migration {
 				session.getTransaction().commit();
 				
 				++recordCount;
+				System.out.println();
 			}catch(Exception e) {
 				++exceptionCount;				
 				writer.println();
@@ -471,20 +472,51 @@ public class Migration {
 	}
 
 	private static boolean basicNullCheck(CCNBNSCStagingMigration currentRecord) {
-		boolean check = currentRecord.getConsumer_name().trim().trim().isEmpty() ||
-						currentRecord.getCategory().trim().trim().isEmpty() || 
+		boolean check = currentRecord.getConsumer_name()==null ||
+						currentRecord.getConsumer_name().trim().isEmpty() ||
+
+						currentRecord.getCategory()==null || 
+						currentRecord.getCategory().trim().isEmpty() || 
+						
+						currentRecord.getConnection_type()==null ||
 						currentRecord.getConnection_type().trim().isEmpty() ||
-						currentRecord.getMetering_status().trim().isEmpty() || currentRecord.getPremise_type().trim().isEmpty() ||
+						
+						currentRecord.getMetering_status()==null || 
+						currentRecord.getMetering_status().trim().isEmpty() || 
+						
+						currentRecord.getPremise_type()==null ||
+						currentRecord.getPremise_type().trim().isEmpty() ||
+						
+						currentRecord.getSanctioned_load()==null ||
 						currentRecord.getSanctioned_load().compareTo(BigDecimal.ZERO)==0 ||
+
+						currentRecord.getSanctioned_load_unit()==null || 						
 						currentRecord.getSanctioned_load_unit().trim().isEmpty() || 						
+
+						currentRecord.getCcnbPurposeOfInstallation()==null ||
 						currentRecord.getCcnbPurposeOfInstallation().trim().isEmpty() ||
+
+						currentRecord.getLocation_code()==null || 
 						currentRecord.getLocation_code().trim().isEmpty() || 
+
+						currentRecord.getOld_cons_no()==null ||  
 						currentRecord.getOld_cons_no().trim().isEmpty() ||  
+
+						currentRecord.getOld_gr_no()==null || 
 						currentRecord.getOld_gr_no().trim().isEmpty() || 
+
+						currentRecord.getOld_rd_no()==null ||
 						currentRecord.getOld_rd_no().trim().isEmpty() ||
+
+						currentRecord.getOld_trf_catg()==null || 
 						currentRecord.getOld_trf_catg().trim().isEmpty() || 
+
+						currentRecord.getPurposeOfInstallationCD()==null ||
 						currentRecord.getPurposeOfInstallationCD().trim().isEmpty() ||
+
+						currentRecord.getStatus()==null ||
 						currentRecord.getStatus().trim().isEmpty() ||
+
 						(currentRecord.isIs_employee() && currentRecord.getEmployee_no().trim().isEmpty()) ||
 						(currentRecord.isIs_seasonal() && (currentRecord.getSeason_start_date()==null || currentRecord.getSeason_end_date()==null || currentRecord.getSeason_start_bill_month().trim().isEmpty() || currentRecord.getSeason_end_bill_month().trim().isEmpty()));
 		
@@ -598,8 +630,12 @@ public class Migration {
 	
 	private static void decideTariffForLV5(NSCStagingMigration nscStagingMigration, CCNBNSCStagingMigration currentRecord) throws Exception{
 		String ccnbTariffCategory = currentRecord.getOld_trf_catg().trim();
-		String ccnbPurposeOfInstallation =  currentRecord.getPurpose_of_installation().trim();
-		String ccnbPurposeOfInstallationCd = currentRecord.getPurposeOfInstallationCD().trim();
+		String ccnbPurposeOfInstallation =  "";
+		if(currentRecord.getCcnbPurposeOfInstallation()!=null)
+			ccnbPurposeOfInstallation = currentRecord.getCcnbPurposeOfInstallation().trim();
+		String ccnbPurposeOfInstallationCd = "";
+		if(currentRecord.getPurposeOfInstallationCD()!=null)
+			ccnbPurposeOfInstallationCd = currentRecord.getPurposeOfInstallationCD().trim();
 		String phase = currentRecord.getPhase().trim();
 		String premiseType = currentRecord.getPremise_type().trim();
 		nscStagingMigration.setTariff_category("LV5");
