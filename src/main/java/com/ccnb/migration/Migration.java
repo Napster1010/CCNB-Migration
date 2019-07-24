@@ -324,14 +324,14 @@ public class Migration {
 				//Check phase based on the load
 				if("HP".equals(currentRecord.getSanctioned_load_unit())) {
 					if(currentRecord.getSanctioned_load().compareTo(new BigDecimal("2.5"))>0)
-						currentRecord.setPhase("THREE");
+						nscStagingMigration.setPhase("THREE");
 					else
-						currentRecord.setPhase("SINGLE");
+						nscStagingMigration.setPhase("SINGLE");
 				}else if("KW".equals(currentRecord.getSanctioned_load_unit())) {
 					if(currentRecord.getSanctioned_load().compareTo(new BigDecimal("3"))>0)
-						currentRecord.setPhase("THREE");
+						nscStagingMigration.setPhase("THREE");
 					else
-						currentRecord.setPhase("SINGLE");					
+						nscStagingMigration.setPhase("SINGLE");					
 				}
 				
 				nscStagingMigration.setIs_government(currentRecord.isIs_government());
@@ -470,7 +470,8 @@ public class Migration {
 						//For LV5
 						decideTariffForLV5(nscStagingMigration, currentRecord);
 						
-					}
+					}else
+						throw new Exception("Couldn't find a suitable tariff category");
 				}else {
 					decideTariffFromTariffMapping(nscStagingMigration, currentRecord, tariffMapping);
 				}
@@ -706,7 +707,7 @@ public class Migration {
 		String ccnbPurposeOfInstallationCd = "";
 		if(currentRecord.getPurposeOfInstallationCD()!=null)
 			ccnbPurposeOfInstallationCd = currentRecord.getPurposeOfInstallationCD().trim();
-		String phase = currentRecord.getPhase().trim();
+		String phase = nscStagingMigration.getPhase();
 		String premiseType = currentRecord.getPremise_type().trim();
 		nscStagingMigration.setTariff_category("LV5");
 		
