@@ -15,6 +15,7 @@ import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.query.Query;
 
+import com.ccnb.bean.CCNBMeterMapping;
 import com.ccnb.bean.CCNBNSCStagingMigration;
 import com.ccnb.bean.CTRMaster;
 import com.ccnb.bean.CcnbNgbTariffMapping;
@@ -63,6 +64,9 @@ public class Migration {
 
 		Query<String> zoneQuery;
 		Query<Integer> migrationStatus;
+		
+		Query<CCNBMeterMapping> ccnbMeterMappingQuery = session.createQuery("from CCNBMeterMapping");
+		List<CCNBMeterMapping> ccnbMeterMappings = ccnbMeterMappingQuery.list();
 
 		for(CCNBNSCStagingMigration currentRecord: unmigratedRecords) {
 			try {
@@ -104,11 +108,59 @@ public class Migration {
 					}else {
 						make = "MIG";
 						serialNo = currentRecord.getOld_cons_no();
-					}
+					}									
 					
 					meterMaster.setIdentifier(make.concat(serialNo));
 					meterMaster.setMake(make);
 					meterMaster.setSerialNo(serialNo);
+					
+					CCNBMeterMapping meterMapping = null;
+					if(!(currentRecord.getMeterCapacity()==null || currentRecord.getMeterCapacity().trim().isEmpty()))
+						meterMapping = getCcnbMeterMapping(currentRecord.getMeterCapacity().trim(), ccnbMeterMappings); 
+					if(meterMapping != null) {
+						meterMaster.setCode(meterMapping.getMeterCode());
+						meterMaster.setCapacity(meterMapping.getMeterCapacity());
+						meterMaster.setPhase(meterMapping.getMeterPhase());
+						meterMaster.setDescription(meterMapping.getMeterDescription());
+					}else {
+						String tariffCategory = currentRecord.getOld_trf_catg().trim();
+						BigDecimal sanctionedLoad = currentRecord.getSanctioned_load();
+						String sanctionedLoadUnit = currentRecord.getSanctioned_load_unit().trim();
+						if(tariffCategory.startsWith("LV1") || tariffCategory.startsWith("LV2")) {
+							if(sanctionedLoad.compareTo(new BigDecimal("3"))<=0 && "KW".equals(sanctionedLoadUnit)) {
+								meterMaster.setCapacity("5-30");
+								meterMaster.setPhase("SINGLE");
+								meterMaster.setCode("WCS");
+								meterMaster.setDescription("Whole Current Single Phase Meter");
+							}else if(sanctionedLoad.compareTo(new BigDecimal("3"))>0 && sanctionedLoad.compareTo(new BigDecimal("10"))<=0 && "KW".equals(sanctionedLoadUnit)){
+								meterMaster.setCapacity("3X10-40");
+								meterMaster.setPhase("THREE");
+								meterMaster.setCode("WCT");
+								meterMaster.setDescription("Whole Current Three Phase Meter");								
+							}else if(sanctionedLoad.compareTo(new BigDecimal("10"))>0 && "KW".equals(sanctionedLoadUnit)) {
+								meterMaster.setCapacity("3X20-80");
+								meterMaster.setPhase("THREE");
+								meterMaster.setCode("WCT");
+								meterMaster.setDescription("Whole Current Three Phase Meter");								
+							}else
+								throw new Exception("Couldn't find a suitable meter mapping!");
+							
+						}else if(tariffCategory.startsWith("LV4")) {
+							if(sanctionedLoad.compareTo(new BigDecimal("2"))<=0 && "HP".equals(sanctionedLoadUnit)) {
+								meterMaster.setCapacity("5-30");
+								meterMaster.setPhase("SINGLE");
+								meterMaster.setCode("WCS");
+								meterMaster.setDescription("Whole Current Single Phase Meter");								
+							}else if(sanctionedLoad.compareTo(new BigDecimal("2"))>0 && "HP".equals(sanctionedLoadUnit)) {
+								meterMaster.setCapacity("3X20-80");
+								meterMaster.setPhase("THREE");
+								meterMaster.setCode("WCT");
+								meterMaster.setDescription("Whole Current Three Phase Meter");																
+							}else
+								throw new Exception("Couldn't find a suitable meter mapping!");
+						}
+					}
+					
 					meterMaster.setMeterOwner("DISCOM");
 					meterMaster.setPrepaid(false);
 					meterMaster.setCreatedBy("CCNB_MIG");
@@ -493,7 +545,7 @@ public class Migration {
 						currentRecord.getConsumer_name().trim().isEmpty() ||
 
 						((currentRecord.getCategory()==null || 
-						currentRecord.getCategory().trim().isEmpty()) && !currentRecord.getOld_trf_catg().startsWith("LV3")) || 
+						currentRecord.getCategory().trim().isEmpty()) && !currentRecord.getOld_trf_catg().trim().startsWith("LV3")) || 
 						
 						currentRecord.getConnection_type()==null ||
 						currentRecord.getConnection_type().trim().isEmpty() ||
@@ -846,5 +898,14 @@ public class Migration {
 					
 		}else
 			throw new Exception("Couldn't find a suitable tariff for the consumer!");
+	}
+	
+	private static CCNBMeterMapping getCcnbMeterMapping(String meterCapacity, List<CCNBMeterMapping> meterMappings) {
+		CCNBMeterMapping meterMapping = null;
+		for(CCNBMeterMapping obj: meterMappings) {
+			if(obj.getMeterCapacity().equals(meterCapacity.trim()))
+				meterMapping = obj;
+		}
+		return meterMapping;
 	}
 }
