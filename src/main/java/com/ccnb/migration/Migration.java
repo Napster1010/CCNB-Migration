@@ -92,8 +92,11 @@ public class Migration {
 					nscStagingMigration.setApplication_date(ccnbDateFormat.parse("10-10-2010"));
 				else
 					nscStagingMigration.setApplication_date(currentRecord.getConnection_date());
+
+				if(currentRecord.getOld_trf_catg().trim().startsWith("LV1") && "N".equals(currentRecord.getMetering_status().trim()) && ("CM_IPUGD".equals(currentRecord.getSaType()) || "CM_BPUGD".equals(currentRecord.getSaType()) || "CM_JPUGD".equals(currentRecord.getSaType()) || "CM_IPUSD".equals(currentRecord.getSaType()) || "CM_BPUSD".equals(currentRecord.getSaType()) || "CM_JPUSD".equals(currentRecord.getSaType())))
+					currentRecord.setMetering_status("Y");
 				
-				if("Y".equals(currentRecord.getMetering_status().trim())) {
+				if("Y".equals(currentRecord.getMetering_status().trim()) || (currentRecord.getOld_trf_catg().trim().startsWith("LV2") || currentRecord.getOld_trf_catg().trim().startsWith("LV3") || currentRecord.getOld_trf_catg().trim().startsWith("LV4"))) {
 					nscStagingMigration.setMetering_status("METERED");
 
 					MeterMaster meterMaster = new MeterMaster();
@@ -179,8 +182,10 @@ public class Migration {
 					//Save meter
 					session.save(meterMaster);
 				}
-				else if("N".equals(currentRecord.getMetering_status().trim()))
-					nscStagingMigration.setMetering_status("UNMETERED");
+				else if("N".equals(currentRecord.getMetering_status().trim()))					
+					nscStagingMigration.setMetering_status("UNMETERED");												
+				else
+					throw new Exception("Invalid metering status!");
 				
 				if("SC/ST".equals(currentRecord.getCategory().trim()))
 					nscStagingMigration.setCategory("ST");
@@ -350,8 +355,14 @@ public class Migration {
 				
 				nscStagingMigration.setNo_of_three_phase_xray_machine(currentRecord.getNo_of_three_phase_xray_machine());
 				
-				nscStagingMigration.setIs_welding_transformer_surcharge(currentRecord.isIs_welding_transformer_surcharge());
+				if(currentRecord.getOld_trf_catg().trim().startsWith("LV1"))
+					nscStagingMigration.setIs_welding_transformer_surcharge(false);
+				else					
+					nscStagingMigration.setIs_welding_transformer_surcharge(currentRecord.isIs_welding_transformer_surcharge());
 				
+				if(currentRecord.getOld_trf_catg().trim().startsWith("LV1"))
+					nscStagingMigration.setIs_capacitor_surcharge(false);
+				else					
 				nscStagingMigration.setIs_capacitor_surcharge(currentRecord.isIs_capacitor_surcharge());
 				
 				nscStagingMigration.setIs_demandside(currentRecord.isIs_demandside());
