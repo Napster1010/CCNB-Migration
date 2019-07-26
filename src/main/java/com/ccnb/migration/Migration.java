@@ -520,7 +520,7 @@ public class Migration {
 				++exceptionCount;				
 				writer.println();
 				writer.println("***********EXCEPTION NUMBER " + exceptionCount + "***********" + "Occured on: " + new Date());
-				writer.println("***********CONSUMER NUMBER: " + currentRecord.getOld_cons_no() + "***********");
+				writer.println("***********CONSUMER NUMBER: " + currentRecord.getOld_cons_no() + "*** OLD TARIFF CATEGORY: " + currentRecord.getOld_trf_catg() + "*** PREMISE TYPE: " + currentRecord.getPremise_type());
 				writer.println("Root cause : ");
 				e.printStackTrace(writer);
 				e.printStackTrace();
