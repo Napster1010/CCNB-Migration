@@ -83,8 +83,13 @@ public class Migration {
 				nscStagingMigration.setPremise_type(currentRecord.getPremise_type());
 				
 				CcnbNgbTariffMapping tariffMapping = null;
-				if(!(currentRecord.getCcnbPurposeOfInstallation()==null || currentRecord.getPurposeOfInstallationCD()==null))
-					tariffMapping = getTariffMapping(tariffMappings, currentRecord.getOld_trf_catg().trim(), currentRecord.getPurposeOfInstallationCD().trim(), currentRecord.getCcnbPurposeOfInstallation().trim());
+				if(currentRecord.getOld_trf_catg().trim().startsWith("LV1.1")) {
+					tariffMapping = getLV1TariffMapping(tariffMappings, currentRecord.getOld_trf_catg().trim());
+				}else {					
+					if(!(currentRecord.getCcnbPurposeOfInstallation()==null || currentRecord.getPurposeOfInstallationCD()==null))
+						tariffMapping = getTariffMapping(tariffMappings, currentRecord.getOld_trf_catg().trim(), currentRecord.getPurposeOfInstallationCD().trim(), currentRecord.getCcnbPurposeOfInstallation().trim());
+				}
+				
 				nscStagingMigration.setPremise_type(currentRecord.getPremise_type());
 				
 				nscStagingMigration.setIs_employee(currentRecord.isIs_employee());
@@ -577,7 +582,7 @@ public class Migration {
 						currentRecord.getSanctioned_load_unit().trim().isEmpty() || 						
 
 						((currentRecord.getCcnbPurposeOfInstallation()==null ||
-						currentRecord.getCcnbPurposeOfInstallation().trim().isEmpty()) && !currentRecord.getOld_trf_catg().startsWith("LV3")) ||
+						currentRecord.getCcnbPurposeOfInstallation().trim().isEmpty()) && !currentRecord.getOld_trf_catg().startsWith("LV3") && !currentRecord.getOld_trf_catg().trim().startsWith("LV1.1")) ||
 
 						currentRecord.getLocation_code()==null || 
 						currentRecord.getLocation_code().trim().isEmpty() || 
@@ -595,7 +600,7 @@ public class Migration {
 						currentRecord.getOld_trf_catg().trim().isEmpty() || 
 
 						((currentRecord.getPurposeOfInstallationCD()==null ||
-						currentRecord.getPurposeOfInstallationCD().trim().isEmpty()) && !currentRecord.getOld_trf_catg().startsWith("LV3")) ||
+						currentRecord.getPurposeOfInstallationCD().trim().isEmpty()) && !currentRecord.getOld_trf_catg().startsWith("LV3") && !currentRecord.getOld_trf_catg().trim().startsWith("LV1.1")) ||
 
 						currentRecord.getStatus()==null ||
 						currentRecord.getStatus().trim().isEmpty() ||
@@ -921,5 +926,14 @@ public class Migration {
 				meterMapping = obj;
 		}
 		return meterMapping;
+	}
+	
+	private static CcnbNgbTariffMapping getLV1TariffMapping(List<CcnbNgbTariffMapping> tariffMappings, String ccnbTariffCategory){
+		CcnbNgbTariffMapping ccnbNgbTariffMapping  = null;
+		for(CcnbNgbTariffMapping tariff: tariffMappings) {
+			if(tariff.getCcnbTariff().trim().equals(ccnbTariffCategory))
+				return tariff;
+		}		
+		return ccnbNgbTariffMapping;
 	}
 }
