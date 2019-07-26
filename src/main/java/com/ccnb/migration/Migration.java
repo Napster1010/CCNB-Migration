@@ -857,7 +857,7 @@ public class Migration {
 		
 		//Subcategory code only handeled for domestic as of now
 		if(currentRecord.getOld_trf_catg().trim().startsWith("LV1.1")) {
-			if(currentRecord.getSanctioned_load().compareTo(new BigDecimal(0.1))>0)
+			if(currentRecord.getSanctioned_load().compareTo(new BigDecimal(0.1))>=0)
 				throw new Exception("Load can't be greater than 0.1 for LV1.1 !");
 		}
 		
