@@ -82,7 +82,9 @@ public class Migration {
 				
 				nscStagingMigration.setPremise_type(currentRecord.getPremise_type());
 				
-				CcnbNgbTariffMapping tariffMapping = getTariffMapping(tariffMappings, currentRecord.getOld_trf_catg().trim(), currentRecord.getPurposeOfInstallationCD().trim(), currentRecord.getCcnbPurposeOfInstallation().trim());
+				CcnbNgbTariffMapping tariffMapping = null;
+				if(!(currentRecord.getCcnbPurposeOfInstallation()==null || currentRecord.getPurposeOfInstallationCD()==null))
+					tariffMapping = getTariffMapping(tariffMappings, currentRecord.getOld_trf_catg().trim(), currentRecord.getPurposeOfInstallationCD().trim(), currentRecord.getCcnbPurposeOfInstallation().trim());
 				nscStagingMigration.setPremise_type(currentRecord.getPremise_type());
 				
 				nscStagingMigration.setIs_employee(currentRecord.isIs_employee());
