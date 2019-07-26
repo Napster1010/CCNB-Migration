@@ -363,52 +363,52 @@ public class Migration {
 					String meterCapacity, ctRatio;
 					CTRMaster ctrMaster = new CTRMaster();
 					
-					if(currentRecord.getCtr_overall_mf().equals("2"))
+					if(currentRecord.getCtr_overall_mf().compareTo(new BigDecimal(2))==0)
 					{
 						meterCapacity = "100/5";
 						ctRatio = "200/5";
 					}
-					else if(currentRecord.getCtr_overall_mf().equals("1.5"))
+					else if(currentRecord.getCtr_overall_mf().compareTo(new BigDecimal(1.5))==0)
 					{
 						meterCapacity = "100/5";
 						ctRatio = "150/5";					
 					}
-					else if(currentRecord.getCtr_overall_mf().equals("3"))
+					else if(currentRecord.getCtr_overall_mf().compareTo(new BigDecimal(3))==0)
 					{
 						meterCapacity = "100/5";
 						ctRatio = "300/5";					
 					}
-					else if(currentRecord.getCtr_overall_mf().equals("4"))
+					else if(currentRecord.getCtr_overall_mf().compareTo(new BigDecimal(4))==0)
 					{
 						meterCapacity = "100/5";
 						ctRatio = "400/5";					
 					}
-					else if(currentRecord.getCtr_overall_mf().equals("5"))
+					else if(currentRecord.getCtr_overall_mf().compareTo(new BigDecimal(5))==0)
 					{
 						meterCapacity = "100/5";
 						ctRatio = "500/5";					
 					}
-					else if(currentRecord.getCtr_overall_mf().equals("15"))
+					else if(currentRecord.getCtr_overall_mf().compareTo(new BigDecimal(15))==0)
 					{
 						meterCapacity = "-/5";
 						ctRatio = "75/5";					
 					}
-					else if(currentRecord.getCtr_overall_mf().equals("20"))
+					else if(currentRecord.getCtr_overall_mf().compareTo(new BigDecimal(20))==0)
 					{
 						meterCapacity = "-/5";
 						ctRatio = "100/5";					
 					}
-					else if(currentRecord.getCtr_overall_mf().equals("40"))
+					else if(currentRecord.getCtr_overall_mf().compareTo(new BigDecimal(40))==0)
 					{
 						meterCapacity = "-/5";
 						ctRatio = "200/5";					
 					}
-					else if(currentRecord.getCtr_overall_mf().equals("60"))
+					else if(currentRecord.getCtr_overall_mf().compareTo(new BigDecimal(60))==0)
 					{
 						meterCapacity = "-/5";
 						ctRatio = "300/5";					
 					}
-					else if(currentRecord.getCtr_overall_mf().equals("80"))
+					else if(currentRecord.getCtr_overall_mf().compareTo(new BigDecimal(80))==0)
 					{
 						meterCapacity = "-/5";
 						ctRatio = "400/5";					

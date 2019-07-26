@@ -10,6 +10,9 @@ import javax.persistence.Id;
 
 @Entity
 public class CCNBMeterMapping {
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private long id;	
 	
 	@Column(name = "ccnb_meter_capacity")
 	private String ccnbMeterCapacity;
