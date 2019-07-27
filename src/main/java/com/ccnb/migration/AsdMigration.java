@@ -56,7 +56,6 @@ public class AsdMigration {
 		for(CCNBAsd currentRecord: unmigratedRecords) {
 			try {
 				session.beginTransaction();
-				session.flush();
 				
 				//retrieve consumer no
 				consumerNoMasterQuery = session.createQuery("select consumerNo from ConsumerNoMaster where oldServiceNoOne = ?");

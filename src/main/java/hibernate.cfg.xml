@@ -56,6 +56,8 @@
         <mapping class="com.ccnb.bean.AdditionalSecurityDepositInstallment"/>
         <mapping class="com.ccnb.bean.ConsumerNoMaster"/>
         <mapping class="com.ccnb.bean.CCNBMeterMapping"/>
+        <mapping class="com.ccnb.bean.Bill"/>
+        <mapping class="com.ccnb.bean.CCNBBill"/>
     </session-factory>
 
 </hibernate-configuration>
