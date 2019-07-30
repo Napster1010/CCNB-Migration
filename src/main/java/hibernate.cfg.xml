@@ -58,6 +58,10 @@
         <mapping class="com.ccnb.bean.CCNBMeterMapping"/>
         <mapping class="com.ccnb.bean.Bill"/>
         <mapping class="com.ccnb.bean.CCNBBill"/>
+        <mapping class="com.ccnb.bean.ReadMaster"/>
+        <mapping class="com.ccnb.bean.ReadMasterKW"/>
+        <mapping class="com.ccnb.bean.ReadMasterPF"/>
+        <mapping class="com.ccnb.bean.CCNBRead"/>
     </session-factory>
 
 </hibernate-configuration>

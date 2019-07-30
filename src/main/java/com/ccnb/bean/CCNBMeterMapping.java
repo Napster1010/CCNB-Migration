@@ -7,8 +7,10 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Table;
 
-@Entity
+@Entity(name = "CCNBMeterMapping")
+@Table(name = "ccnb_meter_mapping")
 public class CCNBMeterMapping {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)

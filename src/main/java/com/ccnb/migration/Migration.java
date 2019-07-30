@@ -93,6 +93,7 @@ public class Migration {
 				nscStagingMigration.setPremise_type(currentRecord.getPremise_type());
 				
 				nscStagingMigration.setIs_employee(currentRecord.isIs_employee());
+				nscStagingMigration.setEmployee_no(currentRecord.getEmployee_no());
 				
 				//Connection date is same as application date
 				if(currentRecord.getConnection_date()==null)
@@ -290,14 +291,23 @@ public class Migration {
 				
 				nscStagingMigration.setNrev_catg(currentRecord.getNrev_catg());
 				
-				if(currentRecord.getPrimary_mobile_no()!=null) {
-					if(currentRecord.getPrimary_mobile_no().length()==10)
-						nscStagingMigration.setPrimary_mobile_no(currentRecord.getPrimary_mobile_no());					
-					else if(currentRecord.getPrimary_mobile_no().length()==12 || currentRecord.getPrimary_mobile_no().length()==13) {
-						if(currentRecord.getPrimary_mobile_no().startsWith("+91"))
-							nscStagingMigration.setPrimary_mobile_no(currentRecord.getPrimary_mobile_no().substring(3));
-						else if(currentRecord.getPrimary_mobile_no().startsWith("91"))
-							nscStagingMigration.setPrimary_mobile_no(currentRecord.getPrimary_mobile_no().substring(2));
+				String primaryMobileNo = currentRecord.getPrimary_mobile_no();
+				if(primaryMobileNo!=null) {
+					if(primaryMobileNo.length()==10) {
+						if(!(primaryMobileNo.startsWith("0") || primaryMobileNo.startsWith("1") || primaryMobileNo.startsWith("2") || primaryMobileNo.startsWith("3") || primaryMobileNo.startsWith("4") || primaryMobileNo.startsWith("5") || primaryMobileNo.equals("9999999999") || primaryMobileNo.equals("8888888888") || primaryMobileNo.equals("7777777777") || primaryMobileNo.equals("6666666666"))) 
+							nscStagingMigration.setPrimary_mobile_no(currentRecord.getPrimary_mobile_no());													
+					}
+					else if(primaryMobileNo.length()==12 || primaryMobileNo.length()==13) {
+						if(primaryMobileNo.startsWith("+91")) {
+							primaryMobileNo = primaryMobileNo.substring(3);
+							if(!(primaryMobileNo.startsWith("0") || primaryMobileNo.startsWith("1") || primaryMobileNo.startsWith("2") || primaryMobileNo.startsWith("3") || primaryMobileNo.startsWith("4") || primaryMobileNo.startsWith("5") || primaryMobileNo.equals("9999999999") || primaryMobileNo.equals("8888888888") || primaryMobileNo.equals("7777777777") || primaryMobileNo.equals("6666666666"))) 
+								nscStagingMigration.setPrimary_mobile_no(primaryMobileNo);							
+						}
+						else if(primaryMobileNo.startsWith("91")) {
+							primaryMobileNo = primaryMobileNo.substring(2);
+							if(!(primaryMobileNo.startsWith("0") || primaryMobileNo.startsWith("1") || primaryMobileNo.startsWith("2") || primaryMobileNo.startsWith("3") || primaryMobileNo.startsWith("4") || primaryMobileNo.startsWith("5") || primaryMobileNo.equals("9999999999") || primaryMobileNo.equals("8888888888") || primaryMobileNo.equals("7777777777") || primaryMobileNo.equals("6666666666"))) 
+								nscStagingMigration.setPrimary_mobile_no(primaryMobileNo);							
+						}
 					}
 				}
 				

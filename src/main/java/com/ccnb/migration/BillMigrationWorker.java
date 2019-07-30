@@ -36,6 +36,7 @@ public class BillMigrationWorker implements Runnable{
 		
 		Query<String> consumerNoMasterQuery;
 		Query<CCNBBill> billQuery;
+		Query<Integer> migrationStatus;
 		
 		for(int i=startIndex; i<=endIndex; i++) {
 			String currentBillMonth = billMonths.get(i);
@@ -112,9 +113,20 @@ public class BillMigrationWorker implements Runnable{
 					bill.setCurrentBillSurcharge(new BigDecimal(currentRecord.getCurrentBillSurcharge()));
 					bill.setAsdBilled(new BigDecimal(currentRecord.getAsdBilled()));
 					bill.setAsdArrear(new BigDecimal(currentRecord.getAsdArrear()));
-					bill.setAsdInstallment(new BigDecimal(currentRecord.getAsdInstallment()));					
+					bill.setAsdInstallment(new BigDecimal(currentRecord.getAsdInstallment()));			
+					
+					bill.setCreatedBy("MIG");
+					bill.setCreatedOn(new Date());
+					bill.setUpdatedBy("MIG");
+					bill.setUpdatedOn(new Date());
 					
 					session.save(bill);
+
+					//Update the migrated flag				
+					migrationStatus = session.createQuery("update CCNBBill set migrated=true where id=?");
+					migrationStatus.setParameter(0, currentRecord.getId());
+					migrationStatus.executeUpdate();
+					
 					session.getTransaction().commit();
 					++recordCount;
 				}catch(Exception e) {
@@ -145,7 +157,5 @@ public class BillMigrationWorker implements Runnable{
     
     public long getRecordCount() {
     	return recordCount;
-    }
-    
-    
+    }        
 }

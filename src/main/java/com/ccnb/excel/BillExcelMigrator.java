@@ -102,13 +102,13 @@ public class BillExcelMigrator {
 	        			
 	        			case 5: ccnbBill.setBillTypeCode(cellValue);break;
 	        			
-	        			case 6: ccnbBill.setBillDate((cellValue=="0"?null:ccnbDateFormat.parse(cellValue)));break;
+	        			case 6: ccnbBill.setBillDate((cellValue.equals("0")?null:ccnbDateFormat.parse(cellValue)));break;
 	        			
-	        			case 7: ccnbBill.setDueDate((cellValue=="0"?null:ccnbDateFormat.parse(cellValue)));break;
+	        			case 7: ccnbBill.setDueDate((cellValue.equals("0")?null:ccnbDateFormat.parse(cellValue)));break;
 	        			
-	        			case 8: ccnbBill.setChequeDueDate((cellValue=="0"?null:ccnbDateFormat.parse(cellValue)));break;
+	        			case 8: ccnbBill.setChequeDueDate((cellValue.equals("0")?null:ccnbDateFormat.parse(cellValue)));break;
 	        			
-	        			case 9: ccnbBill.setCurrentReadDate((cellValue=="0"?null:ccnbDateFormat.parse(cellValue)));break;
+	        			case 9: ccnbBill.setCurrentReadDate((cellValue.equals("0")?null:ccnbDateFormat.parse(cellValue)));break;
 	        			
 	        			case 10: ccnbBill.setCurrentRead(cellValue);break;
 	        			

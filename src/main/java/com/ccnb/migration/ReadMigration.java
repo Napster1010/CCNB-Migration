@@ -4,9 +4,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.PrintWriter;
-import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import org.hibernate.Session;
@@ -14,13 +12,9 @@ import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.query.Query;
 
-import com.ccnb.bean.AdditionalSecurityDeposit;
-import com.ccnb.bean.AdditionalSecurityDepositInstallment;
-import com.ccnb.bean.CCNBAsd;
-import com.ccnb.bean.CCNBBill;
 import com.ccnb.util.PathUtil;
 
-public class BillMigration {
+public class ReadMigration {
 	
 	private static final int noOfThreads = 2;
 
@@ -28,7 +22,7 @@ public class BillMigration {
 
 		//For creating a exception Text File
 		long exceptionCount=0, recordCount=0;
-		File file = new File(PathUtil.baseExceptionFolder + "BillMigrationExceptionLog.txt");
+		File file = new File(PathUtil.baseExceptionFolder + "ReadMigrationExceptionLog.txt");
 		FileWriter fw=null;
 		BufferedWriter bw = null;
 		PrintWriter writer = null;
@@ -51,11 +45,11 @@ public class BillMigration {
 		Session session = sessionFactory.openSession();
 		long startTime = System.currentTimeMillis();
 		
-		Query<String> billMonthQuery = session.createQuery("select distinct(billMonth) from CCNBBill");
+		Query<String> billMonthQuery = session.createQuery("select distinct(billMonth) from CCNBRead");
 		List<String> billMonths = billMonthQuery.list();
 		
 		List<Thread> runningThreads = new ArrayList<>();
-		List<BillMigrationWorker> workerObjects = new ArrayList<>();
+		List<ReadMigrationWorker> workerObjects = new ArrayList<>();
 		
 		int noOfBillMonths = billMonths.size();
 		
@@ -65,7 +59,7 @@ public class BillMigration {
 			int div = temp/leftThreads;
 			if(div>0) {
 				
-				BillMigrationWorker worker = new BillMigrationWorker(sessionFactory, curIndex, curIndex+div-1, billMonths, writer);
+				ReadMigrationWorker worker = new ReadMigrationWorker(sessionFactory, curIndex, curIndex+div-1, billMonths, writer);
 				Thread workerThread = new Thread(worker);
 				workerThread.start();
 				
@@ -82,7 +76,7 @@ public class BillMigration {
 			th.join();
 		}
 		
-		for(BillMigrationWorker worker: workerObjects) {
+		for(ReadMigrationWorker worker: workerObjects) {
 			recordCount += worker.getRecordCount();
 			exceptionCount += worker.getExceptionCount();
 		}
@@ -94,7 +88,7 @@ public class BillMigration {
 		long minutes = seconds/60;
 		seconds -= minutes*60;
 		
-		System.out.println("MIGRATION FROM CCNB_BILL SUCCESSFULLY DONE !!");
+		System.out.println("MIGRATION FROM CCNB_READ SUCCESSFULLY DONE !!");
 		//System.out.println(unmigratedRecords.size() + " ROWS WERE RETRIEVED");
 		System.out.println(recordCount + " ROWS SUCCESSFULLY MIGRATED !!");		
 		System.out.println(exceptionCount + " EXCEPTIONS CAUGHT !! PLEASE REFER EXCEPTION LOG FOR MORE DETAILS!!");		
