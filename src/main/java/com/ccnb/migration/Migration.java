@@ -124,6 +124,7 @@ public class Migration {
 					meterMaster.setIdentifier(make.concat(serialNo));
 					meterMaster.setMake(make);
 					meterMaster.setSerialNo(serialNo);
+					meterMaster.setMf(new BigDecimal(currentRecord.getMf()));
 					
 					CCNBMeterMapping meterMapping = null;
 					if(!(currentRecord.getMeterCapacity()==null || currentRecord.getMeterCapacity().trim().isEmpty()))
