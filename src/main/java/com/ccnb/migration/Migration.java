@@ -137,38 +137,53 @@ public class Migration {
 						String tariffCategory = currentRecord.getOld_trf_catg().trim();
 						BigDecimal sanctionedLoad = currentRecord.getSanctioned_load();
 						String sanctionedLoadUnit = currentRecord.getSanctioned_load_unit().trim();
+						BigDecimal mf = new BigDecimal(currentRecord.getMf());
 						if(tariffCategory.startsWith("LV1") || tariffCategory.startsWith("LV2")) {
-							if(sanctionedLoad.compareTo(new BigDecimal("3"))<=0 && "KW".equals(sanctionedLoadUnit)) {
-								meterMaster.setCapacity("5-30");
-								meterMaster.setPhase("SINGLE");
-								meterMaster.setCode("WCS");
-								meterMaster.setDescription("Whole Current Single Phase Meter");
-							}else if(sanctionedLoad.compareTo(new BigDecimal("3"))>0 && sanctionedLoad.compareTo(new BigDecimal("10"))<=0 && "KW".equals(sanctionedLoadUnit)){
-								meterMaster.setCapacity("3X10-40");
+							if(mf.compareTo(BigDecimal.ONE)!=0) {
+								meterMaster.setCapacity("-/5");
 								meterMaster.setPhase("THREE");
-								meterMaster.setCode("WCT");
-								meterMaster.setDescription("Whole Current Three Phase Meter");								
-							}else if(sanctionedLoad.compareTo(new BigDecimal("10"))>0 && "KW".equals(sanctionedLoadUnit)) {
-								meterMaster.setCapacity("3X20-80");
+								meterMaster.setCode("CTT");
+								meterMaster.setDescription("C.T.Three Phase Meter");
+							}else {
+								if(sanctionedLoad.compareTo(new BigDecimal("3"))<=0 && "KW".equals(sanctionedLoadUnit)) {
+									meterMaster.setCapacity("5-30");
+									meterMaster.setPhase("SINGLE");
+									meterMaster.setCode("WCS");
+									meterMaster.setDescription("Whole Current Single Phase Meter");
+								}else if(sanctionedLoad.compareTo(new BigDecimal("3"))>0 && sanctionedLoad.compareTo(new BigDecimal("10"))<=0 && "KW".equals(sanctionedLoadUnit)){
+									meterMaster.setCapacity("3X10-40");
+									meterMaster.setPhase("THREE");
+									meterMaster.setCode("WCT");
+									meterMaster.setDescription("Whole Current Three Phase Meter");								
+								}else if(sanctionedLoad.compareTo(new BigDecimal("10"))>0 && "KW".equals(sanctionedLoadUnit)) {
+									meterMaster.setCapacity("3X20-80");
+									meterMaster.setPhase("THREE");
+									meterMaster.setCode("WCT");
+									meterMaster.setDescription("Whole Current Three Phase Meter");								
+								}else
+									throw new Exception("Couldn't find a suitable meter mapping!");								
+							}
+														
+						}else if(tariffCategory.startsWith("LV3") || tariffCategory.startsWith("LV4") || tariffCategory.startsWith("LV5")) {
+							if(mf.compareTo(BigDecimal.ONE)!=0) {
+								meterMaster.setCapacity("-/5");
 								meterMaster.setPhase("THREE");
-								meterMaster.setCode("WCT");
-								meterMaster.setDescription("Whole Current Three Phase Meter");								
-							}else
-								throw new Exception("Couldn't find a suitable meter mapping!");
-							
-						}else if(tariffCategory.startsWith("LV4")) {
-							if(sanctionedLoad.compareTo(new BigDecimal("2"))<=0 && "HP".equals(sanctionedLoadUnit)) {
-								meterMaster.setCapacity("5-30");
-								meterMaster.setPhase("SINGLE");
-								meterMaster.setCode("WCS");
-								meterMaster.setDescription("Whole Current Single Phase Meter");								
-							}else if(sanctionedLoad.compareTo(new BigDecimal("2"))>0 && "HP".equals(sanctionedLoadUnit)) {
-								meterMaster.setCapacity("3X20-80");
-								meterMaster.setPhase("THREE");
-								meterMaster.setCode("WCT");
-								meterMaster.setDescription("Whole Current Three Phase Meter");																
-							}else
-								throw new Exception("Couldn't find a suitable meter mapping!");
+								meterMaster.setCode("CTT");
+								meterMaster.setDescription("C.T.Three Phase Meter");
+							}else {
+								if(sanctionedLoad.compareTo(new BigDecimal("2"))<=0 && "HP".equals(sanctionedLoadUnit)) {
+									meterMaster.setCapacity("5-30");
+									meterMaster.setPhase("SINGLE");
+									meterMaster.setCode("WCS");
+									meterMaster.setDescription("Whole Current Single Phase Meter");								
+								}else if(sanctionedLoad.compareTo(new BigDecimal("2"))>0 && "HP".equals(sanctionedLoadUnit)) {
+									meterMaster.setCapacity("3X20-80");
+									meterMaster.setPhase("THREE");
+									meterMaster.setCode("WCT");
+									meterMaster.setDescription("Whole Current Three Phase Meter");																
+								}else
+									throw new Exception("Couldn't find a suitable meter mapping!");								
+							}
 						}
 					}
 					
