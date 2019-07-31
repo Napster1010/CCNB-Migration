@@ -34,7 +34,7 @@ public class BillMigrationWorker implements Runnable{
 	public void run() {
 		Session session = sessionFactory.openSession();
 		
-		Query<String> consumerNoMasterQuery;
+		Query<ConsumerNoMaster> consumerNoMasterQuery;
 		Query<CCNBBill> billQuery;
 		Query<Integer> migrationStatus;
 		
@@ -49,20 +49,20 @@ public class BillMigrationWorker implements Runnable{
 					session.beginTransaction();
 					
 					//retrieve consumer no
-					consumerNoMasterQuery = session.createQuery("select consumerNo from ConsumerNoMaster where oldServiceNoOne = ?");
+					consumerNoMasterQuery = session.createQuery("from ConsumerNoMaster where oldServiceNoOne = ?");
 					consumerNoMasterQuery.setParameter(0, currentRecord.getConsumerNo());
 					
-					String consumerNo = consumerNoMasterQuery.uniqueResult();
-					if(consumerNo==null)
+					ConsumerNoMaster consumerNoMaster = consumerNoMasterQuery.uniqueResult();
+					if(consumerNoMaster==null)
 						throw new Exception("NGB consumer number not found!!");
 
 					Bill bill = new Bill();
 					initializeInstance(bill);
 					
-					bill.setConsumerNo(consumerNo);
+					bill.setConsumerNo(consumerNoMaster.getConsumerNo());
 					bill.setLocationCode(currentRecord.getLocationCode());
-					bill.setGroupNo(currentRecord.getGroupNo());
-					bill.setReadingDiaryNo(currentRecord.getReadingDiaryNo());
+					bill.setGroupNo(consumerNoMaster.getGroupNo());
+					bill.setReadingDiaryNo(consumerNoMaster.getReadingDiaryNo());
 					bill.setBillMonth(currentRecord.getBillMonth());
 					bill.setBillDate(currentRecord.getBillDate());
 					bill.setDueDate(currentRecord.getDueDate());

@@ -114,7 +114,7 @@ public class Migration {
 						String ccnbIdentifier = currentRecord.getMeter_identifier();
 						int meterMakeIndex = getMeterMakeIndex(ccnbIdentifier);
 						make = ccnbIdentifier.substring(0, meterMakeIndex+1);
-						serialNo = ccnbIdentifier.substring(meterMakeIndex+1);
+						serialNo = ccnbIdentifier.substring(meterMakeIndex+1).concat("CC");
 						
 					}else {
 						make = "MIG";
@@ -929,10 +929,18 @@ public class Migration {
 			if(currentRecord.getContract_demand().compareTo(BigDecimal.ZERO)==0)
 				throw new Exception("Contract demand can't be 0 !");
 			
-			if("URBAN".equals(currentRecord.getPremise_type()))
-				nscStagingMigration.setSub_category_code(Long.parseLong(tariffMapping.getNgbUrbanSubcategory2()));
-			else if("RURAL".equals(currentRecord.getPremise_type()))
-				nscStagingMigration.setSub_category_code(Long.parseLong(tariffMapping.getNgbRuralSubcategory2()));					
+			if(currentRecord.getContract_demand().setScale(2, RoundingMode.HALF_UP).compareTo(new BigDecimal(14.92))<=0) {
+				if("URBAN".equals(currentRecord.getPremise_type()))
+					nscStagingMigration.setSub_category_code(Long.parseLong(tariffMapping.getNgbUrbanSubcategory1()));
+				else if("RURAL".equals(currentRecord.getPremise_type()))
+					nscStagingMigration.setSub_category_code(Long.parseLong(tariffMapping.getNgbRuralSubcategory1()));													
+			}else {
+				if("URBAN".equals(currentRecord.getPremise_type()))
+					nscStagingMigration.setSub_category_code(Long.parseLong(tariffMapping.getNgbUrbanSubcategory2()));
+				else if("RURAL".equals(currentRecord.getPremise_type()))
+					nscStagingMigration.setSub_category_code(Long.parseLong(tariffMapping.getNgbRuralSubcategory2()));									
+			}
+			
 			
 		}else if(currentRecord.getOld_trf_catg().trim().startsWith("LV5")) {
 

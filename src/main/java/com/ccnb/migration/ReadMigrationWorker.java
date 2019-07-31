@@ -11,6 +11,7 @@ import org.hibernate.query.Query;
 
 import com.ccnb.bean.Bill;
 import com.ccnb.bean.CCNBRead;
+import com.ccnb.bean.ConsumerNoMaster;
 import com.ccnb.bean.ReadMaster;
 import com.ccnb.bean.ReadMasterKW;
 import com.ccnb.bean.ReadMasterPF;
@@ -36,7 +37,7 @@ public class ReadMigrationWorker implements Runnable {
 	public void run() {
 		Session session = sessionFactory.openSession();
 		
-		Query<String> consumerNoMasterQuery;
+		Query<ConsumerNoMaster> consumerNoMasterQuery;
 		Query<CCNBRead> readQuery;
 		Query<Integer> migrationStatus;
 		
@@ -51,19 +52,19 @@ public class ReadMigrationWorker implements Runnable {
 					session.beginTransaction();
 					
 					//retrieve consumer no
-					consumerNoMasterQuery = session.createQuery("select consumerNo from ConsumerNoMaster where oldServiceNoOne = ?");
+					consumerNoMasterQuery = session.createQuery("from ConsumerNoMaster where oldServiceNoOne = ?");
 					consumerNoMasterQuery.setParameter(0, currentRecord.getConsumerNo());
 					
-					String consumerNo = consumerNoMasterQuery.uniqueResult();
-					if(consumerNo==null)
+					ConsumerNoMaster consumerNoMaster = consumerNoMasterQuery.uniqueResult();
+					if(consumerNoMaster==null)
 						throw new Exception("NGB consumer number not found!!");
 
 					ReadMaster readMaster = new ReadMaster();
 					
 					readMaster.setBillMonth(currentRecord.getBillMonth());
-					readMaster.setGroupNo(currentRecord.getGroupNo());
-					readMaster.setReadingDiaryNo(currentRecord.getReadingDiaryNo());
-					readMaster.setConsumerNo(consumerNo);
+					readMaster.setGroupNo(consumerNoMaster.getGroupNo());
+					readMaster.setReadingDiaryNo(consumerNoMaster.getReadingDiaryNo());
+					readMaster.setConsumerNo(consumerNoMaster.getConsumerNo());
 					readMaster.setMeterIdentifier((currentRecord.getMeterIdentifier()==null || currentRecord.getMeterIdentifier().equals("0"))?null:currentRecord.getMeterIdentifier());
 					readMaster.setReadingDate(currentRecord.getReadingDate());					
 					
