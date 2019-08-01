@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.PrintWriter;
 import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
@@ -42,7 +43,9 @@ public class ConsumerMiscellaneousInformationSaralMigration {
 
 		SessionFactory sessionFactory = new Configuration().configure().buildSessionFactory();
 		Session session = sessionFactory.openSession();
-		long startTime = System.currentTimeMillis();
+		final SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+		
+		long startTime = System.currentTimeMillis();		
 
 		Query<CCNBNSCStagingMigration> ccnbSaralQuery = session.createQuery("from CCNBNSCStagingMigration where old_trf_catg like 'LV1%' and saral_migrated=false");
 		List<CCNBNSCStagingMigration> unmigratedSaralRecords = ccnbSaralQuery.list();
@@ -66,16 +69,16 @@ public class ConsumerMiscellaneousInformationSaralMigration {
 					consumerMiscellaneousInformation.setPropertyName("is_saral");
 					consumerMiscellaneousInformation.setPropertyValue("Y");
 					consumerMiscellaneousInformation.setEffectiveStartDate(new Date());
-					consumerMiscellaneousInformation.setEffectiveEndDate(new Date());
+					consumerMiscellaneousInformation.setEffectiveEndDate(dateFormat.parse("01-01-2050"));
 					consumerMiscellaneousInformation.setIsActive(true);
-					consumerMiscellaneousInformation.setCreatedBy("MIG");
+					consumerMiscellaneousInformation.setCreatedBy("CCNB_MIG");
 					consumerMiscellaneousInformation.setCreatedOn(new Date());
 					session.save(consumerMiscellaneousInformation);
 					isSaral = true;
 				}
 
 				if ((currentRecord.getShramikNo() != null && currentRecord.getShramikNo().trim().length() > 0) || (currentRecord.getIsKarmkaar() != null && currentRecord.getIsKarmkaar().trim().length() > 0)) {
-					final boolean isKarmkar = currentRecord.getIsKarmkaar() != null && currentRecord.getIsKarmkaar().trim().length() > 0;
+					final boolean isKarmkar = currentRecord.getIsKarmkaar() != null && currentRecord.getIsKarmkaar().trim().length() >= 3;
 					String labourNo = currentRecord.getIsKarmkaar();
 					if (isKarmkar) {
 						labourNo = labourNo.trim();
@@ -84,27 +87,28 @@ public class ConsumerMiscellaneousInformationSaralMigration {
 						consumerMiscellaneousInformation.setPropertyName("is_karmkar");
 						consumerMiscellaneousInformation.setPropertyValue("Y");
 						consumerMiscellaneousInformation.setEffectiveStartDate(new Date());
-						consumerMiscellaneousInformation.setEffectiveEndDate(new Date());
+						consumerMiscellaneousInformation.setEffectiveEndDate(dateFormat.parse("01-01-2050"));
 						consumerMiscellaneousInformation.setIsActive(true);
-						consumerMiscellaneousInformation.setCreatedBy("MIG");
+						consumerMiscellaneousInformation.setCreatedBy("CCNB_MIG");
 						consumerMiscellaneousInformation.setCreatedOn(new Date());
-						consumerMiscellaneousInformation.setUpdatedBy("MIG");
+						consumerMiscellaneousInformation.setUpdatedBy("CCNB_MIG");
 						consumerMiscellaneousInformation.setUpdatedOn(new Date());
 						session.save(consumerMiscellaneousInformation);
 					}
-
-					labourNo = (labourNo == null || labourNo.length() == 0) ? currentRecord.getShramikNo() : labourNo;
-					if (labourNo != null && labourNo.trim().length() > 0) {
+					
+					labourNo = (currentRecord.getShramikNo() != null && currentRecord.getShramikNo().trim().length()>=3)? currentRecord.getShramikNo().trim() : labourNo;
+					//labourNo = (labourNo == null || labourNo.length() == 0) ? currentRecord.getShramikNo() : labourNo;
+					if (labourNo != null && labourNo.trim().length() >= 3) {
 						ConsumerMiscellaneousInformation consumerMiscellaneousInformation = new ConsumerMiscellaneousInformation();
 						consumerMiscellaneousInformation.setConsumerNo(consumerNo);
 						consumerMiscellaneousInformation.setPropertyName("is_labour");
 						consumerMiscellaneousInformation.setPropertyValue("Y");
 						consumerMiscellaneousInformation.setEffectiveStartDate(new Date());
-						consumerMiscellaneousInformation.setEffectiveEndDate(new Date());
+						consumerMiscellaneousInformation.setEffectiveEndDate(dateFormat.parse("01-01-2050"));
 						consumerMiscellaneousInformation.setIsActive(true);
-						consumerMiscellaneousInformation.setCreatedBy("MIG");
+						consumerMiscellaneousInformation.setCreatedBy("CCNB_MIG");
 						consumerMiscellaneousInformation.setCreatedOn(new Date());
-						consumerMiscellaneousInformation.setUpdatedBy("MIG");
+						consumerMiscellaneousInformation.setUpdatedBy("CCNB_MIG");
 						consumerMiscellaneousInformation.setUpdatedOn(new Date());
 						session.save(consumerMiscellaneousInformation);
 
@@ -113,11 +117,11 @@ public class ConsumerMiscellaneousInformationSaralMigration {
 						consumerMiscellaneousInformation.setPropertyName("labour_registration_no");
 						consumerMiscellaneousInformation.setPropertyValue(labourNo);
 						consumerMiscellaneousInformation.setEffectiveStartDate(new Date());
-						consumerMiscellaneousInformation.setEffectiveEndDate(new Date());
+						consumerMiscellaneousInformation.setEffectiveEndDate(dateFormat.parse("01-01-2050"));
 						consumerMiscellaneousInformation.setIsActive(true);
-						consumerMiscellaneousInformation.setCreatedBy("MIG");
+						consumerMiscellaneousInformation.setCreatedBy("CCNB_MIG");
 						consumerMiscellaneousInformation.setCreatedOn(new Date());
-						consumerMiscellaneousInformation.setUpdatedBy("MIG");
+						consumerMiscellaneousInformation.setUpdatedBy("CCNB_MIG");
 						consumerMiscellaneousInformation.setUpdatedOn(new Date());
 						session.save(consumerMiscellaneousInformation);
 
@@ -127,11 +131,11 @@ public class ConsumerMiscellaneousInformationSaralMigration {
 							consumerMiscellaneousInformation.setPropertyName("is_saral");
 							consumerMiscellaneousInformation.setPropertyValue("Y");
 							consumerMiscellaneousInformation.setEffectiveStartDate(new Date());
-							consumerMiscellaneousInformation.setEffectiveEndDate(new Date());
+							consumerMiscellaneousInformation.setEffectiveEndDate(dateFormat.parse("01-01-2050"));
 							consumerMiscellaneousInformation.setIsActive(false);
-							consumerMiscellaneousInformation.setCreatedBy("MIG");
+							consumerMiscellaneousInformation.setCreatedBy("CCNB_MIG");
 							consumerMiscellaneousInformation.setCreatedOn(new Date());
-							consumerMiscellaneousInformation.setUpdatedBy("MIG");
+							consumerMiscellaneousInformation.setUpdatedBy("CCNB_MIG");
 							consumerMiscellaneousInformation.setUpdatedOn(new Date());
 							session.save(consumerMiscellaneousInformation);
 							isSaral = true;
@@ -144,9 +148,9 @@ public class ConsumerMiscellaneousInformationSaralMigration {
 					saralScheme.setAsdArrear(BigDecimal.ZERO);
 					saralScheme.setUrjasApplicationNo("");
 					saralScheme.setPosted(true);
-					saralScheme.setCreatedBy("MIG");
+					saralScheme.setCreatedBy("CCNB_MIG");
 					saralScheme.setCreatedOn(new Date());
-					saralScheme.setUpdatedBy("MIG");
+					saralScheme.setUpdatedBy("CCNB_MIG");
 					saralScheme.setUpdatedOn(new Date());
 					session.save(saralScheme);
 				}

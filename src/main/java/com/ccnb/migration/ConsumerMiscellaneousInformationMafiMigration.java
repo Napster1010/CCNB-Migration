@@ -65,9 +65,9 @@ public class ConsumerMiscellaneousInformationMafiMigration {
 					consumerMiscellaneousInformation.setEffectiveStartDate(new Date());
 					consumerMiscellaneousInformation.setEffectiveEndDate(new Date());
 					consumerMiscellaneousInformation.setIsActive(true);
-					consumerMiscellaneousInformation.setCreatedBy("MIG");
+					consumerMiscellaneousInformation.setCreatedBy("CCNB_MIG");
 					consumerMiscellaneousInformation.setCreatedOn(new Date());
-					consumerMiscellaneousInformation.setUpdatedBy("MIG");
+					consumerMiscellaneousInformation.setUpdatedBy("CCNB_MIG");
 					consumerMiscellaneousInformation.setUpdatedOn(new Date());
 					session.save(consumerMiscellaneousInformation);
 				}

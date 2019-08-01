@@ -76,9 +76,9 @@ public class AsdMigration {
 				additionalSecurityDeposit.setExistingSecurityDeposit(new BigDecimal(currentRecord.getExistingSecurityDeposit()));
 				additionalSecurityDeposit.setSecurityDepositDemand(new BigDecimal(currentRecord.getSecurityDepositDemand()));
 				additionalSecurityDeposit.setPeriod(Integer.parseInt(currentRecord.getPeriod()));
-				additionalSecurityDeposit.setCreatedBy("MIG");
+				additionalSecurityDeposit.setCreatedBy("CCNB_MIG");
 				additionalSecurityDeposit.setCreatedOn(new Date());
-				additionalSecurityDeposit.setUpdatedBy("MIG");
+				additionalSecurityDeposit.setUpdatedBy("CCNB_MIG");
 				additionalSecurityDeposit.setUpdatedOn(new Date());
 				
 				session.save(additionalSecurityDeposit);

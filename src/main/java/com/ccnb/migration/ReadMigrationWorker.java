@@ -83,7 +83,7 @@ public class ReadMigrationWorker implements Runnable {
 						readMaster.setMeterStatus("WORKING");
 					
 					readMaster.setReplacementFlag("NR");
-					readMaster.setSource("MIG");
+					readMaster.setSource("CCNB_MIG");
 					readMaster.setReading(new BigDecimal(currentRecord.getReading()));
 					readMaster.setDifference(new BigDecimal(currentRecord.getDifference()));
 					readMaster.setMf((currentRecord.getMf()==null || currentRecord.getMf().equals("0"))?BigDecimal.ONE:new BigDecimal(currentRecord.getMf()));
@@ -92,9 +92,9 @@ public class ReadMigrationWorker implements Runnable {
 					readMaster.setPropagatedAssessment(new BigDecimal(currentRecord.getPropagatedAssessment()));
 					readMaster.setTotalConsumption(new BigDecimal(currentRecord.getTotalConsumption()));
 					
-					readMaster.setCreatedBy("MIG");
+					readMaster.setCreatedBy("CCNB_MIG");
 					readMaster.setCreatedOn(new Date());
-					readMaster.setUpdatedBy("MIG");
+					readMaster.setUpdatedBy("CCNB_MIG");
 					readMaster.setUpdatedOn(new Date());
 					readMaster.setUsedOnBill(true);
 
@@ -111,17 +111,17 @@ public class ReadMigrationWorker implements Runnable {
 						readMasterKW.setMeterMD(new BigDecimal(currentRecord.getMeterMd()));
 						readMasterKW.setMultipliedMD(new BigDecimal(currentRecord.getMultipliedMd()));
 						readMasterKW.setBillingDemand(billingDemand);
-						readMasterKW.setCreatedBy("MIG");
+						readMasterKW.setCreatedBy("CCNB_MIG");
 						readMasterKW.setCreatedOn(new Date());
-						readMasterKW.setUpdatedBy("MIG");
+						readMasterKW.setUpdatedBy("CCNB_MIG");
 						readMasterKW.setUpdatedOn(new Date());
 						readMasterKW.setReadMasterId(readMaster.getId());
 						
 						readMasterPF.setMeterPF(new BigDecimal(currentRecord.getMeterPf()));
 						readMasterPF.setBillingPF(new BigDecimal(currentRecord.getMeterPf()));
-						readMasterPF.setCreatedBy("MIG");
+						readMasterPF.setCreatedBy("CCNB_MIG");
 						readMasterPF.setCreatedOn(new Date());
-						readMasterPF.setUpdatedBy("MIG");
+						readMasterPF.setUpdatedBy("CCNB_MIG");
 						readMasterPF.setUpdatedOn(new Date());
 						readMasterPF.setReadMasterId(readMaster.getId());
 						

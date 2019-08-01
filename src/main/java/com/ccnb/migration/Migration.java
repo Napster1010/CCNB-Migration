@@ -124,7 +124,8 @@ public class Migration {
 					meterMaster.setIdentifier(make.concat(serialNo));
 					meterMaster.setMake(make);
 					meterMaster.setSerialNo(serialNo);
-					meterMaster.setMf(new BigDecimal(currentRecord.getMf()));
+					
+					meterMaster.setMf((currentRecord.getMf()==null || currentRecord.getMf().trim().isEmpty())?BigDecimal.ONE:new BigDecimal(currentRecord.getMf()));
 					
 					CCNBMeterMapping meterMapping = null;
 					if(!(currentRecord.getMeterCapacity()==null || currentRecord.getMeterCapacity().trim().isEmpty()))
@@ -138,7 +139,7 @@ public class Migration {
 						String tariffCategory = currentRecord.getOld_trf_catg().trim();
 						BigDecimal sanctionedLoad = currentRecord.getSanctioned_load();
 						String sanctionedLoadUnit = currentRecord.getSanctioned_load_unit().trim();
-						BigDecimal mf = new BigDecimal(currentRecord.getMf());
+						BigDecimal mf = meterMaster.getMf();
 						if(tariffCategory.startsWith("LV1") || tariffCategory.startsWith("LV2")) {
 							if(mf.compareTo(BigDecimal.ONE)!=0) {
 								meterMaster.setCapacity("-/5");
@@ -201,7 +202,7 @@ public class Migration {
 						nscStagingMigration.setMeter_installation_date(currentRecord.getMeter_installation_date());
 					
 					nscStagingMigration.setMeter_installer_name("MIGRATION");
-					nscStagingMigration.setMeter_installer_designation("MIG");
+					nscStagingMigration.setMeter_installer_designation("CCNB_MIG");
 					
 					//Save meter
 					session.save(meterMaster);
@@ -802,53 +803,191 @@ public class Migration {
 				nscStagingMigration.setPurpose_of_installation_id(127);
 				nscStagingMigration.setPurpose_of_installation("Aquaculture");
 
+				if(nscStagingMigration.getSanctioned_load().compareTo(new BigDecimal("25"))<=0 && "HP".equals(nscStagingMigration.getSanctioned_load_unit())) {
+					if("URBAN".equals(premiseType))
+						nscStagingMigration.setSub_category_code(513);
+					else if("RURAL".equals(premiseType))
+						nscStagingMigration.setSub_category_code(514);				
+					else
+						throw new Exception("Invalid premise type!");					
+				}else if(nscStagingMigration.getSanctioned_load().compareTo(new BigDecimal("25"))>0 && "HP".equals(nscStagingMigration.getSanctioned_load_unit()) && (ccnbTariffCategory.equals("LV5.3") || ccnbTariffCategory.equals("LV5.3.1"))) {					
+					nscStagingMigration.setPurpose_of_installation_id(134);
+					nscStagingMigration.setPurpose_of_installation("Demand based Aquaculture");
+					if("URBAN".equals(premiseType))
+						nscStagingMigration.setSub_category_code(515);
+					else if("RURAL".equals(premiseType))
+						nscStagingMigration.setSub_category_code(516);				
+					else
+						throw new Exception("Invalid premise type!");					
+				}else
+					throw new Exception("Couldn't find suitable subcategory");
+
 			}else if(ccnbPurposeOfInstallation.equals("CTLE_BRDG_FARM")) {
 				nscStagingMigration.setPurpose_of_installation_id(131);
 				nscStagingMigration.setPurpose_of_installation("Cattle breeding farms");
 
+				if(nscStagingMigration.getSanctioned_load().compareTo(new BigDecimal("25"))<=0 && "HP".equals(nscStagingMigration.getSanctioned_load_unit())) {
+					if("URBAN".equals(premiseType))
+						nscStagingMigration.setSub_category_code(513);
+					else if("RURAL".equals(premiseType))
+						nscStagingMigration.setSub_category_code(514);				
+					else
+						throw new Exception("Invalid premise type!");					
+				}else if(nscStagingMigration.getSanctioned_load().compareTo(new BigDecimal("25"))>0 && "HP".equals(nscStagingMigration.getSanctioned_load_unit()) && (ccnbTariffCategory.equals("LV5.3") || ccnbTariffCategory.equals("LV5.3.1"))) {					
+					nscStagingMigration.setPurpose_of_installation_id(138);
+					nscStagingMigration.setPurpose_of_installation("Demand based Cattle breeding farms");
+					if("URBAN".equals(premiseType))
+						nscStagingMigration.setSub_category_code(515);
+					else if("RURAL".equals(premiseType))
+						nscStagingMigration.setSub_category_code(516);				
+					else
+						throw new Exception("Invalid premise type!");					
+				}else
+					throw new Exception("Couldn't find suitable subcategory");
+			
 			}else if(ccnbPurposeOfInstallation.equals("DAIRY_OTHR_AGRI")) {				
 				nscStagingMigration.setPurpose_of_installation_id(132);
 				nscStagingMigration.setPurpose_of_installation("Dairy milk extraction/chilling/pasteurization");
+
+				if(nscStagingMigration.getSanctioned_load().compareTo(new BigDecimal("25"))<=0 && "HP".equals(nscStagingMigration.getSanctioned_load_unit())) {
+					if("URBAN".equals(premiseType))
+						nscStagingMigration.setSub_category_code(513);
+					else if("RURAL".equals(premiseType))
+						nscStagingMigration.setSub_category_code(514);				
+					else
+						throw new Exception("Invalid premise type!");					
+				}else if(nscStagingMigration.getSanctioned_load().compareTo(new BigDecimal("25"))>0 && "HP".equals(nscStagingMigration.getSanctioned_load_unit()) && (ccnbTariffCategory.equals("LV5.3") || ccnbTariffCategory.equals("LV5.3.1"))) {					
+					nscStagingMigration.setPurpose_of_installation_id(139);
+					nscStagingMigration.setPurpose_of_installation("Demand based Dairy milk extraction/chilling/pasteurization");
+					if("URBAN".equals(premiseType))
+						nscStagingMigration.setSub_category_code(515);
+					else if("RURAL".equals(premiseType))
+						nscStagingMigration.setSub_category_code(516);				
+					else
+						throw new Exception("Invalid premise type!");					
+				}else
+					throw new Exception("Couldn't find suitable subcategory");
 
 			}else if(ccnbPurposeOfInstallation.equals("FISHERIES_PONDS")) {				
 				nscStagingMigration.setPurpose_of_installation_id(126);
 				nscStagingMigration.setPurpose_of_installation("Fisheries ponds");
 
+				if(nscStagingMigration.getSanctioned_load().compareTo(new BigDecimal("25"))<=0 && "HP".equals(nscStagingMigration.getSanctioned_load_unit())) {
+					if("URBAN".equals(premiseType))
+						nscStagingMigration.setSub_category_code(513);
+					else if("RURAL".equals(premiseType))
+						nscStagingMigration.setSub_category_code(514);				
+					else
+						throw new Exception("Invalid premise type!");					
+				}else if(nscStagingMigration.getSanctioned_load().compareTo(new BigDecimal("25"))>0 && "HP".equals(nscStagingMigration.getSanctioned_load_unit()) && (ccnbTariffCategory.equals("LV5.3") || ccnbTariffCategory.equals("LV5.3.1"))) {					
+					nscStagingMigration.setPurpose_of_installation_id(133);
+					nscStagingMigration.setPurpose_of_installation("Demand based Fisheries ponds");
+					if("URBAN".equals(premiseType))
+						nscStagingMigration.setSub_category_code(515);
+					else if("RURAL".equals(premiseType))
+						nscStagingMigration.setSub_category_code(516);				
+					else
+						throw new Exception("Invalid premise type!");					
+				}else
+					throw new Exception("Couldn't find suitable subcategory");
+
 			}else if(ccnbPurposeOfInstallation.equals("HATCHERIES")) {				
 				nscStagingMigration.setPurpose_of_installation_id(129);
 				nscStagingMigration.setPurpose_of_installation("Hatcheries");
+
+				if(nscStagingMigration.getSanctioned_load().compareTo(new BigDecimal("25"))<=0 && "HP".equals(nscStagingMigration.getSanctioned_load_unit())) {
+					if("URBAN".equals(premiseType))
+						nscStagingMigration.setSub_category_code(513);
+					else if("RURAL".equals(premiseType))
+						nscStagingMigration.setSub_category_code(514);				
+					else
+						throw new Exception("Invalid premise type!");					
+				}else if(nscStagingMigration.getSanctioned_load().compareTo(new BigDecimal("25"))>0 && "HP".equals(nscStagingMigration.getSanctioned_load_unit()) && (ccnbTariffCategory.equals("LV5.3") || ccnbTariffCategory.equals("LV5.3.1"))) {					
+					nscStagingMigration.setPurpose_of_installation_id(136);
+					nscStagingMigration.setPurpose_of_installation("Demand based Hatcheries");
+					if("URBAN".equals(premiseType))
+						nscStagingMigration.setSub_category_code(515);
+					else if("RURAL".equals(premiseType))
+						nscStagingMigration.setSub_category_code(516);				
+					else
+						throw new Exception("Invalid premise type!");					
+				}else
+					throw new Exception("Couldn't find suitable subcategory");
 
 			}else if(ccnbPurposeOfInstallation.equals("POULTRY_FARMS")) {				
 				nscStagingMigration.setPurpose_of_installation_id(130);
 				nscStagingMigration.setPurpose_of_installation("Poultry farms");
 
+				if(nscStagingMigration.getSanctioned_load().compareTo(new BigDecimal("25"))<=0 && "HP".equals(nscStagingMigration.getSanctioned_load_unit())) {
+					if("URBAN".equals(premiseType))
+						nscStagingMigration.setSub_category_code(513);
+					else if("RURAL".equals(premiseType))
+						nscStagingMigration.setSub_category_code(514);				
+					else
+						throw new Exception("Invalid premise type!");					
+				}else if(nscStagingMigration.getSanctioned_load().compareTo(new BigDecimal("25"))>0 && "HP".equals(nscStagingMigration.getSanctioned_load_unit()) && (ccnbTariffCategory.equals("LV5.3") || ccnbTariffCategory.equals("LV5.3.1"))) {					
+					nscStagingMigration.setPurpose_of_installation_id(137);
+					nscStagingMigration.setPurpose_of_installation("Demand based Poultry farms");
+					if("URBAN".equals(premiseType))
+						nscStagingMigration.setSub_category_code(515);
+					else if("RURAL".equals(premiseType))
+						nscStagingMigration.setSub_category_code(516);				
+					else
+						throw new Exception("Invalid premise type!");					
+				}else
+					throw new Exception("Couldn't find suitable subcategory");
+
 			}else if(ccnbPurposeOfInstallation.equals("SERICULTURE")) {				
 				nscStagingMigration.setPurpose_of_installation_id(128);
 				nscStagingMigration.setPurpose_of_installation("Sericulture");
+
+				if(nscStagingMigration.getSanctioned_load().compareTo(new BigDecimal("25"))<=0 && "HP".equals(nscStagingMigration.getSanctioned_load_unit())) {
+					if("URBAN".equals(premiseType))
+						nscStagingMigration.setSub_category_code(513);
+					else if("RURAL".equals(premiseType))
+						nscStagingMigration.setSub_category_code(514);				
+					else
+						throw new Exception("Invalid premise type!");					
+				}else if(nscStagingMigration.getSanctioned_load().compareTo(new BigDecimal("25"))>0 && "HP".equals(nscStagingMigration.getSanctioned_load_unit()) && (ccnbTariffCategory.equals("LV5.3") || ccnbTariffCategory.equals("LV5.3.1"))) {					
+					nscStagingMigration.setPurpose_of_installation_id(135);
+					nscStagingMigration.setPurpose_of_installation("Demand based Sericulture");
+					if("URBAN".equals(premiseType))
+						nscStagingMigration.setSub_category_code(515);
+					else if("RURAL".equals(premiseType))
+						nscStagingMigration.setSub_category_code(516);				
+					else
+						throw new Exception("Invalid premise type!");					
+				}else
+					throw new Exception("Couldn't find suitable subcategory");
 
 			}else if(ccnbPurposeOfInstallation.equals("OTHER_AGRI")) {				
 				nscStagingMigration.setPurpose_of_installation_id(130);
 				nscStagingMigration.setPurpose_of_installation("Poultry farms");
 
+				if(nscStagingMigration.getSanctioned_load().compareTo(new BigDecimal("25"))<=0 && "HP".equals(nscStagingMigration.getSanctioned_load_unit())) {
+					if("URBAN".equals(premiseType))
+						nscStagingMigration.setSub_category_code(513);
+					else if("RURAL".equals(premiseType))
+						nscStagingMigration.setSub_category_code(514);				
+					else
+						throw new Exception("Invalid premise type!");					
+				}else if(nscStagingMigration.getSanctioned_load().compareTo(new BigDecimal("25"))>0 && "HP".equals(nscStagingMigration.getSanctioned_load_unit()) && (ccnbTariffCategory.equals("LV5.3") || ccnbTariffCategory.equals("LV5.3.1"))) {					
+					nscStagingMigration.setPurpose_of_installation_id(137);
+					nscStagingMigration.setPurpose_of_installation("Demand based Poultry farms");
+					if("URBAN".equals(premiseType))
+						nscStagingMigration.setSub_category_code(515);
+					else if("RURAL".equals(premiseType))
+						nscStagingMigration.setSub_category_code(516);				
+					else
+						throw new Exception("Invalid premise type!");					
+				}else
+					throw new Exception("Couldn't find suitable subcategory");
+
 			}else
 				throw new Exception("No suitable purpose of installation found!");
+			
 			nscStagingMigration.setTariff_code("LV5.3");							
-			if(nscStagingMigration.getSanctioned_load().compareTo(new BigDecimal("25"))<=0 && "HP".equals(nscStagingMigration.getSanctioned_load_unit())) {
-				if("URBAN".equals(premiseType))
-					nscStagingMigration.setSub_category_code(513);
-				else if("RURAL".equals(premiseType))
-					nscStagingMigration.setSub_category_code(514);				
-				else
-					throw new Exception("Invalid premise type!");					
-			}else if(nscStagingMigration.getSanctioned_load().compareTo(new BigDecimal("25"))>0 && "HP".equals(nscStagingMigration.getSanctioned_load_unit()) && (ccnbTariffCategory.equals("LV5.3") || ccnbTariffCategory.equals("LV5.3.1"))) {					
-				if("URBAN".equals(premiseType))
-					nscStagingMigration.setSub_category_code(515);
-				else if("RURAL".equals(premiseType))
-					nscStagingMigration.setSub_category_code(516);				
-				else
-					throw new Exception("Invalid premise type!");					
-			}else
-				throw new Exception("Couldn't find suitable subcategory");
+
 		}else if(ccnbTariffCategory.equals("LV5.4") && (ccnbPurposeOfInstallationCd.equals("CM_USAGE") || ccnbPurposeOfInstallationCd.equals("CM_USAGO")) && (ccnbPurposeOfInstallation.equals("AGRB") || ccnbPurposeOfInstallation.equals("AGRI_FLAT") || ccnbPurposeOfInstallation.equals("AGRI_PUMP"))) {
 			nscStagingMigration.setPurpose_of_installation_id(101);
 			nscStagingMigration.setPurpose_of_installation("(FLAT RATE) Permanent agricultural pump");

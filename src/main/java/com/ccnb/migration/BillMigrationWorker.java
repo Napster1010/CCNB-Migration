@@ -115,9 +115,9 @@ public class BillMigrationWorker implements Runnable{
 					bill.setAsdArrear(new BigDecimal(currentRecord.getAsdArrear()));
 					bill.setAsdInstallment(new BigDecimal(currentRecord.getAsdInstallment()));			
 					
-					bill.setCreatedBy("MIG");
+					bill.setCreatedBy("CCNB_MIG");
 					bill.setCreatedOn(new Date());
-					bill.setUpdatedBy("MIG");
+					bill.setUpdatedBy("CCNB_MIG");
 					bill.setUpdatedOn(new Date());
 					
 					session.save(bill);

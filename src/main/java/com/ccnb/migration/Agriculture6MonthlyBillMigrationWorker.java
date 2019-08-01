@@ -78,9 +78,9 @@ public class Agriculture6MonthlyBillMigrationWorker implements Runnable {
 					bill.setCumulativeSurcharge(currentRecord.getCumulativeSurcharge());
 					bill.setNetBill(currentRecord.getNetBill());
 					bill.setSurchargeArrear(currentRecord.getSurchargeArrear());
-					bill.setCreatedBy("MIG");
+					bill.setCreatedBy("CCNB_MIG");
 					bill.setCreatedOn(new Date());
-					bill.setUpdatedBy("MIG");
+					bill.setUpdatedBy("CCNB_MIG");
 					bill.setUpdatedOn(new Date());
 
 					session.save(bill);
