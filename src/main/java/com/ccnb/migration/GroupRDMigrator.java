@@ -19,8 +19,6 @@ import com.ccnb.util.PathUtil;
 
 public class GroupRDMigrator {
 	
-	private static final int noOfThreads = 2;
-
 	public static void main(String[] args) throws Exception {
 
 		//For creating a exception Text File
@@ -136,7 +134,8 @@ public class GroupRDMigrator {
 		
 		System.out.println("MIGRATION FROM NSC_STAGING_MIGRATION SUCCESSFULLY DONE !!");
 		//System.out.println(unmigratedRecords.size() + " ROWS WERE RETRIEVED");
-		System.out.println(recordCount + " ROWS SUCCESSFULLY MIGRATED !!");		
+		System.out.println(groupCount + " GROUP SUCCESSFULLY MIGRATED !!");		
+		System.out.println(readingDiaryCount + " READING DIARY SUCCESSFULLY MIGRATED !!");		
 		System.out.println(exceptionCount + " EXCEPTIONS CAUGHT !! PLEASE REFER EXCEPTION LOG FOR MORE DETAILS!!");		
 		System.out.println("Time Elapsed: " + minutes + " Minutes " + seconds + " Seconds");				
 		
