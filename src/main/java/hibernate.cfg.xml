@@ -68,6 +68,8 @@
         <mapping class="com.ccnb.bean.SaralScheme"/>      
         <mapping class="com.ccnb.bean.Group"/>      
         <mapping class="com.ccnb.bean.ReadingDiaryNo"/>      
+        <mapping class="com.ccnb.bean.Payment"/>      
+        <mapping class="com.ccnb.bean.CCNBPayment"/>      
 		    
 	</session-factory>
 
