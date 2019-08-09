@@ -70,6 +70,8 @@
         <mapping class="com.ccnb.bean.ReadingDiaryNo"/>      
         <mapping class="com.ccnb.bean.Payment"/>      
         <mapping class="com.ccnb.bean.CCNBPayment"/>      
+        <mapping class="com.ccnb.bean.GMCAccounting"/>      
+        <mapping class="com.ccnb.bean.CCNBGMCAccounting"/>      
 		    
 	</session-factory>
 

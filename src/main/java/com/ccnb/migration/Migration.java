@@ -9,6 +9,7 @@ import java.math.RoundingMode;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.StringTokenizer;
 
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -112,10 +113,10 @@ public class Migration {
 					String make="", serialNo="";
 					if(currentRecord.getMeter_identifier()!=null && !currentRecord.getMeter_identifier().trim().isEmpty()) {
 						String ccnbIdentifier = currentRecord.getMeter_identifier();
-						int meterMakeIndex = getMeterMakeIndex(ccnbIdentifier);
-						make = ccnbIdentifier.substring(0, meterMakeIndex+1);
-						serialNo = ccnbIdentifier.substring(meterMakeIndex+1).concat("CC");
+						StringTokenizer tokenizer = new StringTokenizer(ccnbIdentifier, "#");
 						
+						make = tokenizer.nextToken();
+						serialNo = tokenizer.nextToken().concat("CC");						
 					}else {
 						make = "MIG";
 						serialNo = currentRecord.getOld_cons_no();
@@ -329,7 +330,9 @@ public class Migration {
 				}
 				
 				nscStagingMigration.setIs_bpl(currentRecord.isIs_bpl());
-				
+				if(currentRecord.getOld_trf_catg().trim().startsWith("LV2") || currentRecord.getOld_trf_catg().trim().startsWith("LV3") || currentRecord.getOld_trf_catg().trim().startsWith("LV4"))
+					nscStagingMigration.setIs_bpl(false);
+					
 				if(currentRecord.isIs_bpl()) {
 					if(currentRecord.getBpl_no()==null || currentRecord.getBpl_no().trim().isEmpty())
 						nscStagingMigration.setBpl_no("MIG".concat(currentRecord.getOld_cons_no()));
@@ -374,6 +377,8 @@ public class Migration {
 				}
 				
 				nscStagingMigration.setIs_government(currentRecord.isIs_government());
+				if(nscStagingMigration.getMetering_status().equals("UNMETERED"))
+					nscStagingMigration.setIs_government(false);
 				
 				nscStagingMigration.setPlot_size(currentRecord.getPlot_size());
 				
