@@ -72,6 +72,9 @@
         <mapping class="com.ccnb.bean.CCNBPayment"/>      
         <mapping class="com.ccnb.bean.GMCAccounting"/>      
         <mapping class="com.ccnb.bean.CCNBGMCAccounting"/>      
+        <mapping class="com.ccnb.bean.SecurityDepositInterest"/>      
+        <mapping class="com.ccnb.bean.CCNBBillMafi"/>      
+        <mapping class="com.ccnb.bean.BillMafiScheme"/>      
 		    
 	</session-factory>
 
