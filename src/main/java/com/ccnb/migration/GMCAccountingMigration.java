@@ -52,9 +52,9 @@ public class GMCAccountingMigration {
 		long startTime = System.currentTimeMillis();		
 
 		Query<CCNBGMCAccounting> ccnbGmcQuery = session.createQuery("from CCNBGMCAccounting where migrated=false");
-		List<CCNBGMCAccounting> unmigratedSaralRecords = ccnbGmcQuery.list();
+		List<CCNBGMCAccounting> unmigratedRecords = ccnbGmcQuery.list();
 
-		for (CCNBGMCAccounting currentRecord : unmigratedSaralRecords) {
+		for (CCNBGMCAccounting currentRecord : unmigratedRecords) {
 			try {
 				session.beginTransaction();
 				GMCAccounting gmcAccounting = new GMCAccounting();
@@ -98,7 +98,6 @@ public class GMCAccountingMigration {
 				++exceptionCount;
 				writer.println();
 				writer.println("***********EXCEPTION NUMBER " + exceptionCount + "***********" + "Occured on: " + new Date());
-				writer.println("***********NSC STAGING: " + currentRecord);
 				writer.println("Root cause : ");
 				e.printStackTrace(writer);
 				e.printStackTrace();
@@ -113,7 +112,7 @@ public class GMCAccountingMigration {
 		seconds -= minutes * 60;
 
 		System.out.println("MIGRATION FROM CCNB_GMC_ACCOUNTING SUCCESSFULLY DONE !!");
-		System.out.println(unmigratedSaralRecords.size() + " ROWS WERE RETRIEVED");
+		System.out.println(unmigratedRecords.size() + " ROWS WERE RETRIEVED");
 		System.out.println(recordCount + " ROWS SUCCESSFULLY MIGRATED !!");
 		System.out.println(exceptionCount + " EXCEPTIONS CAUGHT !! PLEASE REFER EXCEPTION LOG FOR MORE DETAILS!!");
 		System.out.println("Time Elapsed: " + minutes + " Minutes " + seconds + " Seconds");
