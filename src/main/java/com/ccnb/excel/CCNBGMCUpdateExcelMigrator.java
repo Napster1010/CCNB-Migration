@@ -6,7 +6,9 @@ import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.InputStream;
 import java.io.PrintWriter;
+import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.math.RoundingMode;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.StringTokenizer;
@@ -105,7 +107,7 @@ public class CCNBGMCUpdateExcelMigrator {
 	        			
 	        			case 6: ccnbGmcUpdate.setContractDemand(cellValue);break;
 	        			
-	        			case 7: ccnbGmcUpdate.setContractDemandUnit((cellValue.equals("0"))?"KW":cellValue);break;
+	        			case 7: ccnbGmcUpdate.setContractDemandUnit((cellValue.equals("0"))?((ccnbGmcUpdate.getTariffCode().equals("LV4"))?"HP":"KW"):cellValue);break;
         			}        			
         			System.out.print(c.getStringCellValue()+" ");
         		}  
@@ -113,6 +115,12 @@ public class CCNBGMCUpdateExcelMigrator {
         		//Saving the created bean Object
         		try
         		{
+        			if("LV4".equals(ccnbGmcUpdate.getTariffCode()) && "KW".equals(ccnbGmcUpdate.getContractDemandUnit())) {
+        				BigDecimal contractDemand = new BigDecimal(ccnbGmcUpdate.getContractDemand()).divide(new BigDecimal("0.746"), 2, RoundingMode.HALF_UP);
+        				ccnbGmcUpdate.setContractDemand(contractDemand.toString());
+        				ccnbGmcUpdate.setContractDemandUnit("HP");
+        			}
+        			
         			ccnbGmcUpdate.setMigrated(false);
         			session.beginTransaction();
 	        		session.flush();

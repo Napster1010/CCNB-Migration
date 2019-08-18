@@ -189,7 +189,7 @@ public class GMCUpdateMigration {
 	}
 	
 	private static void addBillMonths(ArrayList<String> arr, SimpleDateFormat billMonthFormat) throws Exception{
-		Date startDate = billMonthFormat.parse("MAY-2019");
+		Date startDate = billMonthFormat.parse("APR-2019");
 		Calendar calendar = Calendar.getInstance();
 		calendar.setTime(startDate);
 		
