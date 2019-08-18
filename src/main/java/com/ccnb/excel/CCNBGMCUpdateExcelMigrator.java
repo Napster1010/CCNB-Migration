@@ -121,6 +121,11 @@ public class CCNBGMCUpdateExcelMigrator {
         				ccnbGmcUpdate.setContractDemandUnit("HP");
         			}
         			
+        			BigDecimal contractDemand = new BigDecimal(ccnbGmcUpdate.getContractDemand()).setScale(0, RoundingMode.HALF_UP);
+        			BigDecimal sanctionedLoad = new BigDecimal(ccnbGmcUpdate.getSanctionedLoad()).setScale(0, RoundingMode.HALF_UP);
+        			ccnbGmcUpdate.setContractDemand(contractDemand.toString());
+        			ccnbGmcUpdate.setSanctionedLoad(sanctionedLoad.toString());
+        			
         			ccnbGmcUpdate.setMigrated(false);
         			session.beginTransaction();
 	        		session.flush();
