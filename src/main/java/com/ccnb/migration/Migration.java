@@ -1100,7 +1100,7 @@ public class Migration {
 	private static CCNBMeterMapping getCcnbMeterMapping(String meterCapacity, List<CCNBMeterMapping> meterMappings) {
 		CCNBMeterMapping meterMapping = null;
 		for(CCNBMeterMapping obj: meterMappings) {
-			if(obj.getMeterCapacity().equals(meterCapacity.trim()))
+			if(obj.getCcnbMeterCapacity().equals(meterCapacity.trim()))
 				meterMapping = obj;
 		}
 		return meterMapping;
