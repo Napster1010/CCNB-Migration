@@ -73,9 +73,9 @@ public class Migration {
 			try {
 				session.beginTransaction();
 				session.flush();
-				
-				if(basicNullCheck(currentRecord)) 
-					throw new Exception("One or more mandatory fields were found to be blank");				
+
+				//do the preliminary null check
+				basicNullCheck(currentRecord);
 				
 				//Create a new object
 				NSCStagingMigration nscStagingMigration = new NSCStagingMigration();
@@ -591,56 +591,73 @@ public class Migration {
 		return reqMapping;
 	}
 
-	private static boolean basicNullCheck(CCNBNSCStagingMigration currentRecord) {
-		boolean check = currentRecord.getConsumer_name()==null ||
-						currentRecord.getConsumer_name().trim().isEmpty() ||
+	private static void basicNullCheck(CCNBNSCStagingMigration currentRecord) throws Exception {
 
-						((currentRecord.getCategory()==null || 
-						currentRecord.getCategory().trim().isEmpty()) && !currentRecord.getOld_trf_catg().trim().startsWith("LV3")) || 
-						
-						currentRecord.getConnection_type()==null ||
-						currentRecord.getConnection_type().trim().isEmpty() ||
-						
-						currentRecord.getMetering_status()==null || 
-						currentRecord.getMetering_status().trim().isEmpty() || 
-						
-						currentRecord.getPremise_type()==null ||
-						currentRecord.getPremise_type().trim().isEmpty() ||
-						
-						currentRecord.getSanctioned_load()==null ||
-						currentRecord.getSanctioned_load().compareTo(BigDecimal.ZERO)==0 ||
-
-						currentRecord.getSanctioned_load_unit()==null || 						
-						currentRecord.getSanctioned_load_unit().trim().isEmpty() || 						
-
-						((currentRecord.getCcnbPurposeOfInstallation()==null ||
-						currentRecord.getCcnbPurposeOfInstallation().trim().isEmpty()) && !currentRecord.getOld_trf_catg().startsWith("LV3") && !currentRecord.getOld_trf_catg().trim().startsWith("LV1.1")) ||
-
-						currentRecord.getLocation_code()==null || 
-						currentRecord.getLocation_code().trim().isEmpty() || 
-
-						currentRecord.getOld_cons_no()==null ||  
-						currentRecord.getOld_cons_no().trim().isEmpty() ||  
-
-						currentRecord.getOld_gr_no()==null || 
-						currentRecord.getOld_gr_no().trim().isEmpty() || 
-
-						currentRecord.getOld_rd_no()==null ||
-						currentRecord.getOld_rd_no().trim().isEmpty() ||
-
-						currentRecord.getOld_trf_catg()==null || 
-						currentRecord.getOld_trf_catg().trim().isEmpty() || 
-
-						((currentRecord.getPurposeOfInstallationCD()==null ||
-						currentRecord.getPurposeOfInstallationCD().trim().isEmpty()) && !currentRecord.getOld_trf_catg().startsWith("LV3") && !currentRecord.getOld_trf_catg().trim().startsWith("LV1.1")) ||
-
-						currentRecord.getStatus()==null ||
-						currentRecord.getStatus().trim().isEmpty() ||
-
-						(currentRecord.isIs_employee() && currentRecord.getEmployee_no().trim().isEmpty()) ||
-						(currentRecord.isIs_seasonal() && (currentRecord.getSeason_start_date()==null || currentRecord.getSeason_end_date()==null || currentRecord.getSeason_start_bill_month().trim().isEmpty() || currentRecord.getSeason_end_bill_month().trim().isEmpty()));
-		
-		return check;
+		if(currentRecord.getConsumer_name()==null || currentRecord.getConsumer_name().trim().isEmpty()) {
+			throw new Exception("Consumer Name was found to be blank");
+		}
+		if((currentRecord.getCategory()==null || 
+				currentRecord.getCategory().trim().isEmpty()) && !currentRecord.getOld_trf_catg().trim().startsWith("LV3")) {
+			throw new Exception("Category was found to be blank");
+		}
+		if((currentRecord.getConnection_type()==null ||
+				currentRecord.getConnection_type().trim().isEmpty())) {
+			throw new Exception("Connection Type was found to be blank");
+		}
+		if(currentRecord.getMetering_status()==null || 
+				currentRecord.getMetering_status().trim().isEmpty()){
+			throw new Exception("Metering Status was found to be blank");
+		}
+		if(currentRecord.getPremise_type()==null ||
+				currentRecord.getPremise_type().trim().isEmpty()){
+			throw new Exception("Premise Type was found to be blank");
+		}
+		if(currentRecord.getSanctioned_load()==null ||
+				currentRecord.getSanctioned_load().compareTo(BigDecimal.ZERO)==0){
+			throw new Exception("Sanctioned Load was found to be blank");
+		}
+		if(currentRecord.getSanctioned_load_unit()==null || 						
+				currentRecord.getSanctioned_load_unit().trim().isEmpty()) {
+			throw new Exception("Sanctioned Load Unit was found to be blank");
+		}
+		if((currentRecord.getCcnbPurposeOfInstallation()==null ||
+				currentRecord.getCcnbPurposeOfInstallation().trim().isEmpty()) && !currentRecord.getOld_trf_catg().startsWith("LV3") && !currentRecord.getOld_trf_catg().trim().startsWith("LV1.1")) {
+			throw new Exception("CCNB Purpose of Installation was found to be blank");
+		}
+		if(currentRecord.getLocation_code()==null || 
+				currentRecord.getLocation_code().trim().isEmpty()){
+			throw new Exception("Location Code was found to be blank");
+		}
+		if(currentRecord.getOld_cons_no()==null ||  
+				currentRecord.getOld_cons_no().trim().isEmpty()){
+			throw new Exception("Old Cons No was found to be blank");
+		}
+		if(currentRecord.getOld_gr_no()==null || 
+				currentRecord.getOld_gr_no().trim().isEmpty()){
+			throw new Exception("Old Grp No was found to be blank");
+		}
+		if(currentRecord.getOld_rd_no()==null ||
+				currentRecord.getOld_rd_no().trim().isEmpty()){
+			throw new Exception("Old RD No was found to be blank");
+		}
+		if(currentRecord.getOld_trf_catg()==null || 
+				currentRecord.getOld_trf_catg().trim().isEmpty()){
+			throw new Exception("Old Tariff Category was found to be blank");
+		}
+		if((currentRecord.getPurposeOfInstallationCD()==null ||
+				currentRecord.getPurposeOfInstallationCD().trim().isEmpty()) && !currentRecord.getOld_trf_catg().startsWith("LV3") && !currentRecord.getOld_trf_catg().trim().startsWith("LV1.1")){
+			throw new Exception("Purpose of Installation Code was found to be blank");
+		}
+		if(currentRecord.getStatus()==null ||
+				currentRecord.getStatus().trim().isEmpty()){
+			throw new Exception("Status was found to be blank");
+		}
+		if(currentRecord.isIs_employee() && currentRecord.getEmployee_no().trim().isEmpty()){
+			throw new Exception("Emplyee No was found to be blank");
+		}
+		if(currentRecord.isIs_seasonal() && (currentRecord.getSeason_start_date()==null || currentRecord.getSeason_end_date()==null || currentRecord.getSeason_start_bill_month().trim().isEmpty() || currentRecord.getSeason_end_bill_month().trim().isEmpty())){
+			throw new Exception("Seasonal Flag was true but related information was found to be blank");
+		}		
 	}
 	
 	private static int getMeterMakeIndex(String identifier) {
