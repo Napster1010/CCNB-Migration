@@ -16,6 +16,7 @@ import org.hibernate.query.Query;
 import com.ccnb.bean.AdditionalSecurityDeposit;
 import com.ccnb.bean.AdditionalSecurityDepositInstallment;
 import com.ccnb.bean.CCNBAsd;
+import com.ccnb.bean.CCNBNSCStagingMigration;
 import com.ccnb.bean.ConsumerNoMaster;
 import com.ccnb.util.PathUtil;
 
@@ -50,6 +51,8 @@ public class AsdMigration {
 		Query<CCNBAsd> ccnbAsdQuery = session.createQuery("from CCNBAsd where migrated=false");
 		List<CCNBAsd> unmigratedRecords = ccnbAsdQuery.list();
 		
+		Query<CCNBNSCStagingMigration> ccnbNscStagingQuery;
+		
 		Query<String> consumerNoMasterQuery;
 		Query<Integer> migrationStatus;
 		
@@ -83,6 +86,13 @@ public class AsdMigration {
 				
 				session.save(additionalSecurityDeposit);
 				
+				ccnbNscStagingQuery = session.createQuery("from CCNBNSCStagingMigration where old_cons_no=?");
+				ccnbNscStagingQuery.setParameter(0, currentRecord.getConsumerNo());
+				
+				CCNBNSCStagingMigration ccnbnscStagingMigration = ccnbNscStagingQuery.uniqueResult();
+				if(ccnbnscStagingMigration==null)
+					throw new Exception("No record found for the consumer in ccnb_nsc_staging_migration !!");								
+				
 				//Create ASD installment rows
 				for(int i=1;i<=3;i++) {
 					AdditionalSecurityDepositInstallment additionalSecurityDepositInstallment = new AdditionalSecurityDepositInstallment();
@@ -101,8 +111,13 @@ public class AsdMigration {
 						additionalSecurityDepositInstallment.setBillMonth("SEP-2019");
 						break;					
 					}
-					/////////////////////////////////////////Set posted and deleted as false//////////////////////////////////////////////////////
-					additionalSecurityDepositInstallment.setDeleted(false);
+
+					/////////////////////////////////////////Set posted and deleted as false//////////////////////////////////////////////////////					
+					if(ccnbnscStagingMigration.isIs_employee() || ccnbnscStagingMigration.isSaral() || "TEMPORARY".equals(ccnbnscStagingMigration.getConnection_type()))
+						additionalSecurityDepositInstallment.setDeleted(true);
+					else
+						additionalSecurityDepositInstallment.setDeleted(false);
+					
 					additionalSecurityDepositInstallment.setPosted(false);
 					session.save(additionalSecurityDepositInstallment);					
 				}
