@@ -65,6 +65,7 @@ public class PDCBillGenerator {
 							
 		for(CCNBNSCStagingMigration currentRecord: pdcConsumers) {
 			try {
+				session.beginTransaction();
 				
 				//retrieve consumer no
 				consumerNoMasterQuery = session.createQuery("from ConsumerNoMaster where oldServiceNoOne = :consNo");
@@ -78,7 +79,6 @@ public class PDCBillGenerator {
 				BigDecimal securityDepositAmount = currentRecord.getSecurity_deposit_amount();
 				
 				if(!(totalOutstanding.compareTo(BigDecimal.ZERO)==0) || securityDepositAmount.compareTo(BigDecimal.ZERO)<0) {
-					session.beginTransaction();
 					
 					//get pdc date
 					Date pdcDate = currentRecord.getPdcDate();				
@@ -144,10 +144,9 @@ public class PDCBillGenerator {
 						
 						session.save(bill);
 						++recordCount;						
-					}
-					
-					session.getTransaction().commit();
+					}					
 				}									
+				session.getTransaction().commit();
 			}catch(Exception e) {				
 				++exceptionCount;				
 				writer.println();
