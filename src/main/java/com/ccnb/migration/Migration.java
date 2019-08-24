@@ -7,6 +7,7 @@ import java.io.PrintWriter;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.StringTokenizer;
@@ -592,72 +593,76 @@ public class Migration {
 	}
 
 	private static void basicNullCheck(CCNBNSCStagingMigration currentRecord) throws Exception {
+		ArrayList<String> exceptionList = new ArrayList<>();
 
 		if(currentRecord.getConsumer_name()==null || currentRecord.getConsumer_name().trim().isEmpty()) {
-			throw new Exception("Consumer Name was found to be blank");
+			exceptionList.add("Consumer Name was found to be blank");
 		}
 		if((currentRecord.getCategory()==null || 
 				currentRecord.getCategory().trim().isEmpty()) && !currentRecord.getOld_trf_catg().trim().startsWith("LV3")) {
-			throw new Exception("Category was found to be blank");
+			exceptionList.add("Category was found to be blank");
 		}
 		if((currentRecord.getConnection_type()==null ||
 				currentRecord.getConnection_type().trim().isEmpty())) {
-			throw new Exception("Connection Type was found to be blank");
+			exceptionList.add("Connection Type was found to be blank");
 		}
 		if(currentRecord.getMetering_status()==null || 
 				currentRecord.getMetering_status().trim().isEmpty()){
-			throw new Exception("Metering Status was found to be blank");
+			exceptionList.add("Metering Status was found to be blank");
 		}
 		if(currentRecord.getPremise_type()==null ||
 				currentRecord.getPremise_type().trim().isEmpty()){
-			throw new Exception("Premise Type was found to be blank");
+			exceptionList.add("Premise Type was found to be blank");
 		}
 		if(currentRecord.getSanctioned_load()==null ||
 				currentRecord.getSanctioned_load().compareTo(BigDecimal.ZERO)==0){
-			throw new Exception("Sanctioned Load was found to be blank");
+			exceptionList.add("Sanctioned Load was found to be blank");
 		}
 		if(currentRecord.getSanctioned_load_unit()==null || 						
 				currentRecord.getSanctioned_load_unit().trim().isEmpty()) {
-			throw new Exception("Sanctioned Load Unit was found to be blank");
+			exceptionList.add("Sanctioned Load Unit was found to be blank");
 		}
 		if((currentRecord.getCcnbPurposeOfInstallation()==null ||
 				currentRecord.getCcnbPurposeOfInstallation().trim().isEmpty()) && !currentRecord.getOld_trf_catg().startsWith("LV3") && !currentRecord.getOld_trf_catg().trim().startsWith("LV1.1")) {
-			throw new Exception("CCNB Purpose of Installation was found to be blank");
+			exceptionList.add("CCNB Purpose of Installation was found to be blank");
 		}
 		if(currentRecord.getLocation_code()==null || 
 				currentRecord.getLocation_code().trim().isEmpty()){
-			throw new Exception("Location Code was found to be blank");
+			exceptionList.add("Location Code was found to be blank");
 		}
 		if(currentRecord.getOld_cons_no()==null ||  
 				currentRecord.getOld_cons_no().trim().isEmpty()){
-			throw new Exception("Old Cons No was found to be blank");
+			exceptionList.add("Old Cons No was found to be blank");
 		}
 		if(currentRecord.getOld_gr_no()==null || 
 				currentRecord.getOld_gr_no().trim().isEmpty()){
-			throw new Exception("Old Grp No was found to be blank");
+			exceptionList.add("Old Grp No was found to be blank");
 		}
 		if(currentRecord.getOld_rd_no()==null ||
 				currentRecord.getOld_rd_no().trim().isEmpty()){
-			throw new Exception("Old RD No was found to be blank");
+			exceptionList.add("Old RD No was found to be blank");
 		}
 		if(currentRecord.getOld_trf_catg()==null || 
 				currentRecord.getOld_trf_catg().trim().isEmpty()){
-			throw new Exception("Old Tariff Category was found to be blank");
+			exceptionList.add("Old Tariff Category was found to be blank");
 		}
 		if((currentRecord.getPurposeOfInstallationCD()==null ||
 				currentRecord.getPurposeOfInstallationCD().trim().isEmpty()) && !currentRecord.getOld_trf_catg().startsWith("LV3") && !currentRecord.getOld_trf_catg().trim().startsWith("LV1.1")){
-			throw new Exception("Purpose of Installation Code was found to be blank");
+			exceptionList.add("Purpose of Installation Code was found to be blank");
 		}
 		if(currentRecord.getStatus()==null ||
 				currentRecord.getStatus().trim().isEmpty()){
-			throw new Exception("Status was found to be blank");
+			exceptionList.add("Status was found to be blank");
 		}
 		if(currentRecord.isIs_employee() && currentRecord.getEmployee_no().trim().isEmpty()){
-			throw new Exception("Emplyee No was found to be blank");
+			exceptionList.add("Emplyee No was found to be blank");
 		}
 		if(currentRecord.isIs_seasonal() && (currentRecord.getSeason_start_date()==null || currentRecord.getSeason_end_date()==null || currentRecord.getSeason_start_bill_month().trim().isEmpty() || currentRecord.getSeason_end_bill_month().trim().isEmpty())){
-			throw new Exception("Seasonal Flag was true but related information was found to be blank");
-		}		
+			exceptionList.add("Seasonal Flag was true but related information was found to be blank");
+		}
+		
+		if(!exceptionList.isEmpty())
+			throw new Exception("List of Null check errors -> " + exceptionList);
 	}
 	
 	private static int getMeterMakeIndex(String identifier) {
