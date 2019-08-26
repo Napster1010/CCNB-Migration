@@ -9,7 +9,9 @@ import java.io.PrintWriter;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
@@ -49,7 +51,7 @@ public class NSCStagingExcelMigrator {
 		}
 		catch(Exception e){}
 		
-		File excel = new File(PathUtil.baseExcelFolder + "nsc_3424624.xlsx");
+		File excel = new File(PathUtil.baseExcelFolder + "Jabalpur_NSC.xlsx");//nsc_3424624
     	InputStream is = new FileInputStream(excel);
     	Workbook workbook = StreamingReader.builder()
     	        .rowCacheSize(100)    
@@ -72,7 +74,11 @@ public class NSCStagingExcelMigrator {
 		SimpleDateFormat ccnbDateFormat = new SimpleDateFormat("dd-MMM-yy");
 		SimpleDateFormat ccnbDateFormat1 = new SimpleDateFormat("dd-MM-yyyy");
 		SimpleDateFormat ccnbDateFormat2 = new SimpleDateFormat("yyyy-MM-dd");
-
+		List<SimpleDateFormat> dateFormats = new ArrayList<>();
+		dateFormats.add(ccnbDateFormat);
+		dateFormats.add(ccnbDateFormat1);
+		dateFormats.add(ccnbDateFormat2);
+		
     	for(Row r: sheet)
     	{
         	CCNBNSCStagingMigration ccnbNscStagingMigration = new CCNBNSCStagingMigration();
@@ -89,7 +95,7 @@ public class NSCStagingExcelMigrator {
         			//For setting values of all columns of the current row into bean object
         			switch(c.getColumnIndex())
         			{
-	        			case 0: ccnbNscStagingMigration.setConnection_date((cellValue=="")?null:ccnbDateFormat.parse(cellValue));break;
+	        			case 0: ccnbNscStagingMigration.setConnection_date((cellValue=="")?null:dateParser(dateFormats, cellValue));break;
 	        			
 	        			case 1: ccnbNscStagingMigration.setConsumer_name(cellValue);break;
 	        			
@@ -162,9 +168,9 @@ public class NSCStagingExcelMigrator {
 	        			
 	        			case 31: ccnbNscStagingMigration.setContract_demand_unit(cellValue);break;
 	        			
-	        			case 32: ccnbNscStagingMigration.setSeason_start_date((cellValue=="")?null:ccnbDateFormat2.parse(cellValue));break;
+	        			case 32: ccnbNscStagingMigration.setSeason_start_date((cellValue=="")?null:dateParser(dateFormats, cellValue));break;
 	        			
-	        			case 33: ccnbNscStagingMigration.setSeason_end_date((cellValue=="")?null:ccnbDateFormat2.parse(cellValue));break;
+	        			case 33: ccnbNscStagingMigration.setSeason_end_date((cellValue=="")?null:dateParser(dateFormats, cellValue));break;
 	        			
 	        			case 34: ccnbNscStagingMigration.setSeason_start_bill_month(cellValue);break;
 	        			
@@ -178,9 +184,9 @@ public class NSCStagingExcelMigrator {
 	        			
 	        			case 39: ccnbNscStagingMigration.setPhase(cellValue);break;
 	        			
-	        			case 40: ccnbNscStagingMigration.setTc_start_date((cellValue=="")?null:ccnbDateFormat1.parse(cellValue));break;
+	        			case 40: ccnbNscStagingMigration.setTc_start_date((cellValue=="")?null:dateParser(dateFormats, cellValue));break;
 	        			
-	        			case 41: ccnbNscStagingMigration.setTc_end_date((cellValue=="")?null:ccnbDateFormat1.parse(cellValue));break;
+	        			case 41: ccnbNscStagingMigration.setTc_end_date((cellValue=="")?null:dateParser(dateFormats, cellValue));break;
 	        			
 	        			case 42: ccnbNscStagingMigration.setGovernment_type(cellValue);break;
 	        			
@@ -220,7 +226,7 @@ public class NSCStagingExcelMigrator {
 	        			
 	        			case 60: ccnbNscStagingMigration.setNeighbour_connection_no(cellValue);break;
 	        			
-	        			case 61: ccnbNscStagingMigration.setSurvey_date((cellValue=="")?null:ccnbDateFormat.parse(cellValue));break;
+	        			case 61: ccnbNscStagingMigration.setSurvey_date((cellValue=="")?null:dateParser(dateFormats, cellValue));break;
 	        			
 	        			case 62: ccnbNscStagingMigration.setMeter_identifier(cellValue);break;
 	        			
@@ -230,7 +236,7 @@ public class NSCStagingExcelMigrator {
 	        			
 	        			case 65: ccnbNscStagingMigration.setCtr_overall_mf((cellValue=="")?BigDecimal.ZERO:new BigDecimal(cellValue));break;
 	        			
-	        			case 66: ccnbNscStagingMigration.setMeter_installation_date((cellValue=="")?null:ccnbDateFormat.parse(cellValue));break;
+	        			case 66: ccnbNscStagingMigration.setMeter_installation_date((cellValue=="")?null:dateParser(dateFormats, cellValue));break;
 	        			
 	        			case 67: ccnbNscStagingMigration.setMeter_installer_name(cellValue);break;
 	        			
@@ -240,7 +246,7 @@ public class NSCStagingExcelMigrator {
 	        			
 	        			case 70: ccnbNscStagingMigration.setSim_no(cellValue);break;
 	        			
-	        			case 71: ccnbNscStagingMigration.setDate_of_registration((cellValue=="")?null:ccnbDateFormat.parse(cellValue));break;
+	        			case 71: ccnbNscStagingMigration.setDate_of_registration((cellValue=="")?null:dateParser(dateFormats, cellValue));break;
 	        			
 	        			case 72: ccnbNscStagingMigration.setRegistration_fee_amount((cellValue=="")?BigDecimal.ZERO:new BigDecimal(cellValue));break;
 	        			
@@ -254,7 +260,7 @@ public class NSCStagingExcelMigrator {
 	        			
 	        			case 77: ccnbNscStagingMigration.setPortal_reference_no(cellValue);break;
 	        			
-	        			case 78: ccnbNscStagingMigration.setCreated_on((cellValue=="")?null:ccnbDateFormat.parse(cellValue));break;
+	        			case 78: ccnbNscStagingMigration.setCreated_on((cellValue=="")?null:dateParser(dateFormats, cellValue));break;
 	        			
 	        			case 79:
 	        				String consNo = cellValue;
@@ -418,7 +424,7 @@ public class NSCStagingExcelMigrator {
 	        			
 	        			case 117: ccnbNscStagingMigration.setMeterCapacity(cellValue);break;
 	        			
-	        			case 118: ccnbNscStagingMigration.setPdcDate((cellValue=="")?null:ccnbDateFormat.parse(cellValue));break;	        			
+	        			case 118: ccnbNscStagingMigration.setPdcDate((cellValue=="")?null:dateParser(dateFormats, cellValue));break;	        			
 
 	        			case 119: 
 	        				if(strToBool(cellValue))
@@ -435,7 +441,7 @@ public class NSCStagingExcelMigrator {
 	        			
 	        			case 123: ccnbNscStagingMigration.setLastBillMonth(cellValue);break;
 	        			
-	        			case 124: ccnbNscStagingMigration.setLastBillDate((cellValue=="")?null:ccnbDateFormat.parse(cellValue));break;
+	        			case 124: ccnbNscStagingMigration.setLastBillDate((cellValue=="")?null:dateParser(dateFormats, cellValue));break;
 
 	        			case 125: ccnbNscStagingMigration.setIsKarmkaar(cellValue);break;
 
@@ -486,6 +492,20 @@ public class NSCStagingExcelMigrator {
 		is.close();
 		writer.close();
 		workbook.close();		
+    }
+    
+    private static Date dateParser(List<SimpleDateFormat> dateFormats, String dateString) {
+    	Date parsedDate = null;
+    	
+    	for(SimpleDateFormat format: dateFormats) {
+    		try {
+    			parsedDate = format.parse(dateString);    			
+    			break;
+    			
+    		}catch(Exception e){}
+    	}
+    	
+    	return parsedDate;
     }
     
     private static boolean strToBool(String str) {
