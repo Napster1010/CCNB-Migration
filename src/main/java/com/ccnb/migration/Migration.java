@@ -106,22 +106,23 @@ public class Migration {
 				if(currentRecord.getOld_trf_catg().trim().startsWith("LV1") && "N".equals(currentRecord.getMetering_status().trim()) && ("CM_IPUGD".equals(currentRecord.getSaType()) || "CM_BPUGD".equals(currentRecord.getSaType()) || "CM_JPUGD".equals(currentRecord.getSaType()) || "CM_IPUSD".equals(currentRecord.getSaType()) || "CM_BPUSD".equals(currentRecord.getSaType()) || "CM_JPUSD".equals(currentRecord.getSaType())))
 					currentRecord.setMetering_status("Y");
 				
-				if("Y".equals(currentRecord.getMetering_status().trim()) || (currentRecord.getOld_trf_catg().trim().startsWith("LV2") || currentRecord.getOld_trf_catg().trim().startsWith("LV3") || currentRecord.getOld_trf_catg().trim().startsWith("LV4"))) {
+				//decide metering status
+				if(Long.parseLong(currentRecord.getMeterRent())>0 || (currentRecord.getMeter_identifier()!=null && !currentRecord.getMeter_identifier().trim().isEmpty()))
+					currentRecord.setMetering_status("Y");
+				if(currentRecord.getOld_trf_catg().trim().equals("LV1.2-UN"))
+					currentRecord.setMetering_status("N");
+				
+				if("Y".equals(currentRecord.getMetering_status().trim()) || (currentRecord.getOld_trf_catg().trim().startsWith("LV2") || currentRecord.getOld_trf_catg().trim().startsWith("LV3") || currentRecord.getOld_trf_catg().trim().startsWith("LV4") || currentRecord.getOld_trf_catg().trim().startsWith("LV5.3"))) {
+					currentRecord.setMetering_status("Y");
 					nscStagingMigration.setMetering_status("METERED");
 
 					MeterMaster meterMaster = new MeterMaster();
 					
-					String make="", serialNo="";
-					if(currentRecord.getMeter_identifier()!=null && !currentRecord.getMeter_identifier().trim().isEmpty()) {
-						String ccnbIdentifier = currentRecord.getMeter_identifier();
-						StringTokenizer tokenizer = new StringTokenizer(ccnbIdentifier, "#");
-						
-						make = tokenizer.nextToken();
-						serialNo = tokenizer.nextToken().concat("CC");						
-					}else {
-						make = "MIG";
-						serialNo = currentRecord.getOld_cons_no();
-					}									
+					String make="MIG", serialNo="";
+					if(currentRecord.getMeter_identifier()!=null && !currentRecord.getMeter_identifier().trim().isEmpty())
+						serialNo = currentRecord.getMeter_identifier();						
+					else 						
+						serialNo = currentRecord.getOld_cons_no();													
 					
 					meterMaster.setIdentifier(make.concat(serialNo));
 					meterMaster.setMake(make);
@@ -197,6 +198,7 @@ public class Migration {
 					meterMaster.setCreateOn(new Date());						
 				
 					nscStagingMigration.setMeter_identifier(meterMaster.getIdentifier());
+					nscStagingMigration.setPhase(meterMaster.getPhase());
 					
 					if(currentRecord.getMeter_installation_date()==null)
 						nscStagingMigration.setMeter_installation_date(nscStagingMigration.getApplication_date());
@@ -365,7 +367,7 @@ public class Migration {
 				nscStagingMigration.setIs_seasonal(currentRecord.isIs_seasonal());
 				
 				//Check phase based on the load
-				if("HP".equals(currentRecord.getSanctioned_load_unit())) {
+/*				if("HP".equals(currentRecord.getSanctioned_load_unit())) {
 					if(currentRecord.getSanctioned_load().compareTo(new BigDecimal("2.5"))>0)
 						nscStagingMigration.setPhase("THREE");
 					else
@@ -376,7 +378,7 @@ public class Migration {
 					else
 						nscStagingMigration.setPhase("SINGLE");					
 				}
-				
+*/				
 				nscStagingMigration.setIs_government(currentRecord.isIs_government());
 				if(nscStagingMigration.getMetering_status().equals("UNMETERED"))
 					nscStagingMigration.setIs_government(false);
