@@ -282,7 +282,7 @@ public class Migration {
 					nscStagingMigration.setContract_demand(currentRecord.getContract_demand());
 				
 				if(currentRecord.getOld_trf_catg().startsWith("LV2")) {
-					if(currentRecord.getSanctioned_load().compareTo(new BigDecimal(10))>0 && currentRecord.getSanctioned_load().compareTo(currentRecord.getContract_demand())<0)
+					if(currentRecord.getSanctioned_load().compareTo(new BigDecimal(10))>0 && currentRecord.getSanctioned_load().compareTo(nscStagingMigration.getContract_demand())<0)
 						throw new Exception("Sanctioned load can't be less than the contract demand!");
 					if(currentRecord.getSanctioned_load().compareTo(new BigDecimal(10))>0 && currentRecord.getSanctioned_load().compareTo(BigDecimal.ZERO)==0)
 						throw new Exception("Contract demand can't be zero for LV2!");
@@ -1113,7 +1113,7 @@ public class Migration {
 				
 			}else {
 				
-				if(currentRecord.getContract_demand().compareTo(BigDecimal.ZERO)==0)
+				if(nscStagingMigration.getContract_demand().compareTo(BigDecimal.ZERO)==0)
 					throw new Exception("Contract demand can't be 0 !");
 				if("URBAN".equals(currentRecord.getPremise_type()))
 					nscStagingMigration.setSub_category_code(Long.parseLong(tariffMapping.getNgbUrbanSubcategory2()));
@@ -1125,10 +1125,10 @@ public class Migration {
 			
 			if(!"HP".equals(currentRecord.getSanctioned_load_unit()))
 				throw new Exception("Invalid sanctioned load unit for LV4 tariff category !!");
-			if(currentRecord.getContract_demand().compareTo(BigDecimal.ZERO)==0)
+			if(nscStagingMigration.getContract_demand().compareTo(BigDecimal.ZERO)==0)
 				throw new Exception("Contract demand can't be 0 !");
 			
-			if(currentRecord.getContract_demand().setScale(2, RoundingMode.HALF_UP).compareTo(new BigDecimal(14.92))<=0) {
+			if(nscStagingMigration.getContract_demand().setScale(2, RoundingMode.HALF_UP).compareTo(new BigDecimal(14.92))<=0) {
 				if("URBAN".equals(currentRecord.getPremise_type()))
 					nscStagingMigration.setSub_category_code(Long.parseLong(tariffMapping.getNgbUrbanSubcategory1()));
 				else if("RURAL".equals(currentRecord.getPremise_type()))
