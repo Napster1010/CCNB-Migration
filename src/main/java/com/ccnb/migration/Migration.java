@@ -232,6 +232,8 @@ public class Migration {
 				String shortCode = (String)zoneQuery.uniqueResult();
 				if(shortCode!=null) {
 					String groupNo = currentRecord.getOld_gr_no().trim().substring(2);
+					Integer newGroupNo = Integer.parseInt(groupNo);
+					groupNo = newGroupNo.toString();
 					nscStagingMigration.setGroup_no(shortCode.trim().concat(groupNo));
 				}
 				
@@ -515,7 +517,11 @@ public class Migration {
 
 				//Check if we have a tariff mapping available or not
 				if(tariffMapping==null) {
-					if(currentRecord.getOld_trf_catg().trim().startsWith("LV3")) {						
+					if(currentRecord.getOld_trf_catg().trim().equals("LV1.2.TM")) {
+						//For LV1.2.TM
+						decideTariffForLV1TM(nscStagingMigration, currentRecord);
+					}
+					else if(currentRecord.getOld_trf_catg().trim().startsWith("LV3")) {						
 						//For LV3
 						decideTariffForLV3(nscStagingMigration, currentRecord);
 						
@@ -676,6 +682,31 @@ public class Migration {
 				break;
 		}
 		return index;
+	}
+	
+	private static void decideTariffForLV1TM(NSCStagingMigration nscStagingMigration, CCNBNSCStagingMigration currentRecord) throws Exception{
+		if(currentRecord.getSanctioned_load_unit().equals("KW") && currentRecord.getPremise_type().trim().equals("RURAL")) {
+
+			nscStagingMigration.setTariff_category("LV1");
+			nscStagingMigration.setPurpose_of_installation_id(140);
+			nscStagingMigration.setTariff_code("LV1.UM");
+			nscStagingMigration.setPurpose_of_installation("Domestic light and fan Un-Metered");
+			
+			BigDecimal sanctionedLoad = nscStagingMigration.getSanctioned_load();
+			if(sanctionedLoad.compareTo(new BigDecimal("0.2"))<=0) {
+				nscStagingMigration.setSub_category_code(115);
+				
+			}else if(sanctionedLoad.compareTo(new BigDecimal("0.3"))<=0) {
+				nscStagingMigration.setSub_category_code(116);
+				
+			}else if(sanctionedLoad.compareTo(new BigDecimal("0.5"))<=0) {
+				nscStagingMigration.setSub_category_code(117);
+				
+			}else
+				throw new Exception("Load can't be greater than 0.5 for LV1.2.TM tariff category");
+			
+		}else
+			throw new Exception("Load unit should be 'KW' and premise type should be 'RURAL' for LV1.2.TM tariff category");		
 	}
 	
 	private static void decideTariffForLV3(NSCStagingMigration nscStagingMigration, CCNBNSCStagingMigration currentRecord) throws Exception{
