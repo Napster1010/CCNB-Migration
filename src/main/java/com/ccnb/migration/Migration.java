@@ -273,7 +273,7 @@ public class Migration {
 				nscStagingMigration.setContract_demand_unit(currentRecord.getContract_demand_unit());
 
 				if(currentRecord.getOld_trf_catg().trim().startsWith("LV4") && "HP".equals(currentRecord.getContract_demand_unit().trim())) {
-					BigDecimal contractDemand = currentRecord.getContract_demand().multiply(new BigDecimal(0.746));
+					BigDecimal contractDemand = currentRecord.getContract_demand().multiply(new BigDecimal("0.746"));
 					contractDemand = contractDemand.setScale(3, RoundingMode.HALF_UP);
 					
 					nscStagingMigration.setContract_demand(contractDemand);
@@ -282,12 +282,12 @@ public class Migration {
 					nscStagingMigration.setContract_demand(currentRecord.getContract_demand());
 				
 				if(currentRecord.getOld_trf_catg().startsWith("LV2")) {
-					if(currentRecord.getSanctioned_load().compareTo(new BigDecimal(10))>0 && currentRecord.getSanctioned_load().compareTo(nscStagingMigration.getContract_demand())<0)
+					if(currentRecord.getSanctioned_load().compareTo(new BigDecimal("10"))>0 && currentRecord.getSanctioned_load().compareTo(nscStagingMigration.getContract_demand())<0)
 						throw new Exception("Sanctioned load can't be less than the contract demand!");
-					if(currentRecord.getSanctioned_load().compareTo(new BigDecimal(10))>0 && currentRecord.getSanctioned_load().compareTo(BigDecimal.ZERO)==0)
+					if(currentRecord.getSanctioned_load().compareTo(new BigDecimal("10"))>0 && currentRecord.getSanctioned_load().compareTo(BigDecimal.ZERO)==0)
 						throw new Exception("Contract demand can't be zero for LV2!");
 				}else if(currentRecord.getOld_trf_catg().startsWith("LV4")) {
-					BigDecimal sanctionedLoad = currentRecord.getSanctioned_load().multiply(new BigDecimal(0.746));
+					BigDecimal sanctionedLoad = currentRecord.getSanctioned_load().multiply(new BigDecimal("0.746"));
 					sanctionedLoad = sanctionedLoad.setScale(3, RoundingMode.HALF_UP);
 					if(sanctionedLoad.compareTo(nscStagingMigration.getContract_demand())<0)
 						throw new Exception("Sanctioned load can't be less than the contract demand!");
@@ -418,52 +418,52 @@ public class Migration {
 					String meterCapacity, ctRatio;
 					CTRMaster ctrMaster = new CTRMaster();
 					
-					if(currentRecord.getCtr_overall_mf().compareTo(new BigDecimal(2))==0)
+					if(currentRecord.getCtr_overall_mf().compareTo(new BigDecimal("2"))==0)
 					{
 						meterCapacity = "100/5";
 						ctRatio = "200/5";
 					}
-					else if(currentRecord.getCtr_overall_mf().compareTo(new BigDecimal(1.5))==0)
+					else if(currentRecord.getCtr_overall_mf().compareTo(new BigDecimal("1.5"))==0)
 					{
 						meterCapacity = "100/5";
 						ctRatio = "150/5";					
 					}
-					else if(currentRecord.getCtr_overall_mf().compareTo(new BigDecimal(3))==0)
+					else if(currentRecord.getCtr_overall_mf().compareTo(new BigDecimal("3"))==0)
 					{
 						meterCapacity = "100/5";
 						ctRatio = "300/5";					
 					}
-					else if(currentRecord.getCtr_overall_mf().compareTo(new BigDecimal(4))==0)
+					else if(currentRecord.getCtr_overall_mf().compareTo(new BigDecimal("4"))==0)
 					{
 						meterCapacity = "100/5";
 						ctRatio = "400/5";					
 					}
-					else if(currentRecord.getCtr_overall_mf().compareTo(new BigDecimal(5))==0)
+					else if(currentRecord.getCtr_overall_mf().compareTo(new BigDecimal("5"))==0)
 					{
 						meterCapacity = "100/5";
 						ctRatio = "500/5";					
 					}
-					else if(currentRecord.getCtr_overall_mf().compareTo(new BigDecimal(15))==0)
+					else if(currentRecord.getCtr_overall_mf().compareTo(new BigDecimal("15"))==0)
 					{
 						meterCapacity = "-/5";
 						ctRatio = "75/5";					
 					}
-					else if(currentRecord.getCtr_overall_mf().compareTo(new BigDecimal(20))==0)
+					else if(currentRecord.getCtr_overall_mf().compareTo(new BigDecimal("20"))==0)
 					{
 						meterCapacity = "-/5";
 						ctRatio = "100/5";					
 					}
-					else if(currentRecord.getCtr_overall_mf().compareTo(new BigDecimal(40))==0)
+					else if(currentRecord.getCtr_overall_mf().compareTo(new BigDecimal("40"))==0)
 					{
 						meterCapacity = "-/5";
 						ctRatio = "200/5";					
 					}
-					else if(currentRecord.getCtr_overall_mf().compareTo(new BigDecimal(60))==0)
+					else if(currentRecord.getCtr_overall_mf().compareTo(new BigDecimal("60"))==0)
 					{
 						meterCapacity = "-/5";
 						ctRatio = "300/5";					
 					}
-					else if(currentRecord.getCtr_overall_mf().compareTo(new BigDecimal(80))==0)
+					else if(currentRecord.getCtr_overall_mf().compareTo(new BigDecimal("80"))==0)
 					{
 						meterCapacity = "-/5";
 						ctRatio = "400/5";					
@@ -1082,7 +1082,7 @@ public class Migration {
 		
 		//Subcategory code only handeled for domestic as of now
 		if(currentRecord.getOld_trf_catg().trim().startsWith("LV1.1")) {
-			if(currentRecord.getSanctioned_load().setScale(1, RoundingMode.HALF_UP).compareTo(new BigDecimal(0.1))>0)
+			if(currentRecord.getSanctioned_load().setScale(1, RoundingMode.HALF_UP).compareTo(new BigDecimal("0.1"))>0)
 				throw new Exception("Load can't be greater than 0.1 for LV1.1 !");
 		}
 		
@@ -1105,7 +1105,7 @@ public class Migration {
 			if(!"KW".equals(currentRecord.getSanctioned_load_unit()))
 				throw new Exception("Invalid sanctioned load unit for LV2 tariff category !!");
 
-			if(currentRecord.getSanctioned_load().compareTo(new BigDecimal(10))<=0) {
+			if(currentRecord.getSanctioned_load().compareTo(new BigDecimal("10"))<=0) {
 				if("URBAN".equals(currentRecord.getPremise_type()))
 					nscStagingMigration.setSub_category_code(Long.parseLong(tariffMapping.getNgbUrbanSubcategory1()));
 				else if("RURAL".equals(currentRecord.getPremise_type()))
@@ -1128,7 +1128,7 @@ public class Migration {
 			if(nscStagingMigration.getContract_demand().compareTo(BigDecimal.ZERO)==0)
 				throw new Exception("Contract demand can't be 0 !");
 			
-			if(nscStagingMigration.getContract_demand().setScale(2, RoundingMode.HALF_UP).compareTo(new BigDecimal(14.92))<=0) {
+			if(nscStagingMigration.getContract_demand().setScale(2, RoundingMode.HALF_UP).compareTo(new BigDecimal("14.92"))<=0) {
 				if("URBAN".equals(currentRecord.getPremise_type()))
 					nscStagingMigration.setSub_category_code(Long.parseLong(tariffMapping.getNgbUrbanSubcategory1()));
 				else if("RURAL".equals(currentRecord.getPremise_type()))
