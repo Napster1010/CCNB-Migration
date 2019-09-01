@@ -69,7 +69,22 @@ public class Migration {
 		
 		Query<CCNBMeterMapping> ccnbMeterMappingQuery = session.createQuery("from CCNBMeterMapping");
 		List<CCNBMeterMapping> ccnbMeterMappings = ccnbMeterMappingQuery.list();
-
+		
+		//sa_types for unmetered connections
+		ArrayList<String> unmeteredSaTypes = new ArrayList<>();
+		unmeteredSaTypes.add("CM_BPUGD");
+		unmeteredSaTypes.add("CM_IPUGD");
+		unmeteredSaTypes.add("CM_JPUGD");
+		unmeteredSaTypes.add("CM_BPUSD");
+		unmeteredSaTypes.add("CM_IPUSD");
+		unmeteredSaTypes.add("CM_JPUSD");
+		unmeteredSaTypes.add("CM_BPUA");
+		unmeteredSaTypes.add("CM_IPUA");
+		unmeteredSaTypes.add("CM_JPUA");
+		unmeteredSaTypes.add("CM_BTUA");
+		unmeteredSaTypes.add("CM_ITUA");
+		unmeteredSaTypes.add("CM_JTUA");
+		
 		for(CCNBNSCStagingMigration currentRecord: unmigratedRecords) {
 			try {
 				session.beginTransaction();
@@ -110,6 +125,8 @@ public class Migration {
 				if(Long.parseLong(currentRecord.getMeterRent())>0 || (currentRecord.getMeter_identifier()!=null && !currentRecord.getMeter_identifier().trim().isEmpty()))
 					currentRecord.setMetering_status("Y");
 				if(currentRecord.getOld_trf_catg().trim().equals("LV1.2-UN"))
+					currentRecord.setMetering_status("N");
+				if(unmeteredSaTypes.contains(currentRecord.getSaType().trim()))
 					currentRecord.setMetering_status("N");
 				
 				if("Y".equals(currentRecord.getMetering_status().trim()) || (currentRecord.getOld_trf_catg().trim().startsWith("LV2") || currentRecord.getOld_trf_catg().trim().startsWith("LV3") || currentRecord.getOld_trf_catg().trim().startsWith("LV4") || currentRecord.getOld_trf_catg().trim().startsWith("LV5.3"))) {
@@ -369,18 +386,20 @@ public class Migration {
 				nscStagingMigration.setIs_seasonal(currentRecord.isIs_seasonal());
 				
 				//Check phase based on the load
-/*				if("HP".equals(currentRecord.getSanctioned_load_unit())) {
-					if(currentRecord.getSanctioned_load().compareTo(new BigDecimal("2.5"))>0)
-						nscStagingMigration.setPhase("THREE");
-					else
-						nscStagingMigration.setPhase("SINGLE");
-				}else if("KW".equals(currentRecord.getSanctioned_load_unit())) {
-					if(currentRecord.getSanctioned_load().compareTo(new BigDecimal("3"))>0)
-						nscStagingMigration.setPhase("THREE");
-					else
-						nscStagingMigration.setPhase("SINGLE");					
+				if(currentRecord.getMetering_status().equals("N")) {
+					if("HP".equals(currentRecord.getSanctioned_load_unit())) {
+						if(currentRecord.getSanctioned_load().compareTo(new BigDecimal("2.5"))>0)
+							nscStagingMigration.setPhase("THREE");
+						else
+							nscStagingMigration.setPhase("SINGLE");
+					}else if("KW".equals(currentRecord.getSanctioned_load_unit())) {
+						if(currentRecord.getSanctioned_load().compareTo(new BigDecimal("3"))>0)
+							nscStagingMigration.setPhase("THREE");
+						else
+							nscStagingMigration.setPhase("SINGLE");					
+					}
+					
 				}
-*/				
 				nscStagingMigration.setIs_government(currentRecord.isIs_government());
 				if(nscStagingMigration.getMetering_status().equals("UNMETERED"))
 					nscStagingMigration.setIs_government(false);
@@ -517,9 +536,9 @@ public class Migration {
 
 				//Check if we have a tariff mapping available or not
 				if(tariffMapping==null) {
-					if(currentRecord.getOld_trf_catg().trim().equals("LV1.2.TM")) {
+					if(currentRecord.getOld_trf_catg().trim().equals("LV1.2-UN")) {
 						//For LV1.2.TM
-						decideTariffForLV1TM(nscStagingMigration, currentRecord);
+						decideTariffForLV1UM(nscStagingMigration, currentRecord);
 					}
 					else if(currentRecord.getOld_trf_catg().trim().startsWith("LV3")) {						
 						//For LV3
@@ -684,7 +703,7 @@ public class Migration {
 		return index;
 	}
 	
-	private static void decideTariffForLV1TM(NSCStagingMigration nscStagingMigration, CCNBNSCStagingMigration currentRecord) throws Exception{
+	private static void decideTariffForLV1UM(NSCStagingMigration nscStagingMigration, CCNBNSCStagingMigration currentRecord) throws Exception{
 		if(currentRecord.getSanctioned_load_unit().equals("KW") && currentRecord.getPremise_type().trim().equals("RURAL")) {
 
 			nscStagingMigration.setTariff_category("LV1");
@@ -703,10 +722,10 @@ public class Migration {
 				nscStagingMigration.setSub_category_code(117);
 				
 			}else
-				throw new Exception("Load can't be greater than 0.5 for LV1.2.TM tariff category");
+				throw new Exception("Load can't be greater than 0.5 for LV1.2-UN tariff category");
 			
 		}else
-			throw new Exception("Load unit should be 'KW' and premise type should be 'RURAL' for LV1.2.TM tariff category");		
+			throw new Exception("Load unit should be 'KW' and premise type should be 'RURAL' for LV1.2-UN tariff category");		
 	}
 	
 	private static void decideTariffForLV3(NSCStagingMigration nscStagingMigration, CCNBNSCStagingMigration currentRecord) throws Exception{
