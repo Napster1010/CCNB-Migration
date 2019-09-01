@@ -150,7 +150,7 @@ public class Migration {
 					meterMaster.setMake(make);
 					meterMaster.setSerialNo(serialNo);
 					
-					meterMaster.setMf((currentRecord.getMf()==null || currentRecord.getMf().trim().isEmpty())?BigDecimal.ONE:new BigDecimal(currentRecord.getMf()));
+					meterMaster.setMf(BigDecimal.ONE);
 					
 					CCNBMeterMapping meterMapping = null;
 					if(!(currentRecord.getMeterCapacity()==null || currentRecord.getMeterCapacity().trim().isEmpty()))
