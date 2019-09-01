@@ -84,6 +84,9 @@ public class Migration {
 		unmeteredSaTypes.add("CM_BTUA");
 		unmeteredSaTypes.add("CM_ITUA");
 		unmeteredSaTypes.add("CM_JTUA");
+		unmeteredSaTypes.add("CM_IAGBE");		
+		unmeteredSaTypes.add("CM_BAGBE");		
+		unmeteredSaTypes.add("CM_JAGBE");
 		
 		for(CCNBNSCStagingMigration currentRecord: unmigratedRecords) {
 			try {
@@ -118,19 +121,21 @@ public class Migration {
 				else
 					nscStagingMigration.setApplication_date(currentRecord.getConnection_date());
 
-				if(currentRecord.getOld_trf_catg().trim().startsWith("LV1") && "N".equals(currentRecord.getMetering_status().trim()) && ("CM_IPUGD".equals(currentRecord.getSaType()) || "CM_BPUGD".equals(currentRecord.getSaType()) || "CM_JPUGD".equals(currentRecord.getSaType()) || "CM_IPUSD".equals(currentRecord.getSaType()) || "CM_BPUSD".equals(currentRecord.getSaType()) || "CM_JPUSD".equals(currentRecord.getSaType())))
+/*				if(currentRecord.getOld_trf_catg().trim().startsWith("LV1") && "N".equals(currentRecord.getMetering_status().trim()) && ("CM_IPUGD".equals(currentRecord.getSaType()) || "CM_BPUGD".equals(currentRecord.getSaType()) || "CM_JPUGD".equals(currentRecord.getSaType()) || "CM_IPUSD".equals(currentRecord.getSaType()) || "CM_BPUSD".equals(currentRecord.getSaType()) || "CM_JPUSD".equals(currentRecord.getSaType())))
 					currentRecord.setMetering_status("Y");
-				
-				//decide metering status
 				if(Long.parseLong(currentRecord.getMeterRent())>0 || (currentRecord.getMeter_identifier()!=null && !currentRecord.getMeter_identifier().trim().isEmpty()))
 					currentRecord.setMetering_status("Y");
 				if(currentRecord.getOld_trf_catg().trim().equals("LV1.2-UN"))
 					currentRecord.setMetering_status("N");
+*/				
+
+				//decide metering status
 				if(unmeteredSaTypes.contains(currentRecord.getSaType().trim()))
 					currentRecord.setMetering_status("N");
+				else
+					currentRecord.setMetering_status("Y");
 				
 				if("Y".equals(currentRecord.getMetering_status().trim()) || (currentRecord.getOld_trf_catg().trim().startsWith("LV2") || currentRecord.getOld_trf_catg().trim().startsWith("LV3") || currentRecord.getOld_trf_catg().trim().startsWith("LV4") || currentRecord.getOld_trf_catg().trim().startsWith("LV5.3"))) {
-					currentRecord.setMetering_status("Y");
 					nscStagingMigration.setMetering_status("METERED");
 
 					MeterMaster meterMaster = new MeterMaster();
@@ -522,9 +527,9 @@ public class Migration {
 				nscStagingMigration.setCreated_on(new Date());
 				
 				if("LEGAL".equals(currentRecord.getArea_status().trim()))
-					nscStagingMigration.setArea_status("AUTHORIZED");
+					nscStagingMigration.setArea_status("AUTHORISED");
 				else
-					nscStagingMigration.setArea_status("UNAUTHORIZED");
+					nscStagingMigration.setArea_status("UNAUTHORISED");
 				
 				if("C".equals(currentRecord.getStatus().trim()))
 					nscStagingMigration.setStatus("ACTIVE");
