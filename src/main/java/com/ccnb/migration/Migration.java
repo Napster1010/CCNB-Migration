@@ -332,7 +332,7 @@ public class Migration {
 				
 				nscStagingMigration.setPfl_bill_amount(currentRecord.getPfl_bill_amount());
 				
-				nscStagingMigration.setMf(currentRecord.getMf());
+				nscStagingMigration.setMf("1");
 				
 				nscStagingMigration.setNrev_catg(currentRecord.getNrev_catg());
 				
@@ -383,7 +383,7 @@ public class Migration {
 				//Tariff Category
 				nscStagingMigration.setTariff_category(currentRecord.getOld_trf_catg().substring(0, 3));
 
-				if(currentRecord.getOld_trf_catg().contains("T") && "PERMANENT".equals(currentRecord.getConnection_type().trim()))
+				if(currentRecord.getOld_trf_catg().contains("T") || currentRecord.getOld_trf_catg().trim().equals("LV1.2N"))
 					nscStagingMigration.setConnection_type("TEMPORARY");
 				else					
 					nscStagingMigration.setConnection_type(currentRecord.getConnection_type());
