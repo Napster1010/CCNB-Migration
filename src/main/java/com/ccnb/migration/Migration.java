@@ -153,7 +153,7 @@ public class Migration {
 					meterMaster.setMf(BigDecimal.ONE);
 					
 					CCNBMeterMapping meterMapping = null;
-					if(!(currentRecord.getMeterCapacity()==null || currentRecord.getMeterCapacity().trim().isEmpty()))
+					if(!(currentRecord.getMeterCapacity()==null || currentRecord.getMeterCapacity().trim().isEmpty()) && !currentRecord.isHas_ctr())
 						meterMapping = getCcnbMeterMapping(currentRecord.getMeterCapacity().trim(), ccnbMeterMappings); 
 					if(meterMapping != null) {
 						meterMaster.setCode(meterMapping.getMeterCode());
@@ -164,9 +164,8 @@ public class Migration {
 						String tariffCategory = currentRecord.getOld_trf_catg().trim();
 						BigDecimal sanctionedLoad = currentRecord.getSanctioned_load();
 						String sanctionedLoadUnit = currentRecord.getSanctioned_load_unit().trim();
-						BigDecimal mf = meterMaster.getMf();
 						if(tariffCategory.startsWith("LV1") || tariffCategory.startsWith("LV2")) {
-							if(mf.compareTo(BigDecimal.ONE)!=0) {
+							if(currentRecord.isHas_ctr()) {
 								meterMaster.setCapacity("-/5");
 								meterMaster.setPhase("THREE");
 								meterMaster.setCode("CTT");
@@ -192,7 +191,7 @@ public class Migration {
 							}
 														
 						}else if(tariffCategory.startsWith("LV3") || tariffCategory.startsWith("LV4") || tariffCategory.startsWith("LV5")) {
-							if(mf.compareTo(BigDecimal.ONE)!=0) {
+							if(currentRecord.isHas_ctr()) {
 								meterMaster.setCapacity("-/5");
 								meterMaster.setPhase("THREE");
 								meterMaster.setCode("CTT");
@@ -476,6 +475,11 @@ public class Migration {
 					{
 						meterCapacity = "-/5";
 						ctRatio = "100/5";					
+					}
+					else if(currentRecord.getCtr_overall_mf().compareTo(new BigDecimal("30"))==0)
+					{
+						meterCapacity = "-/5";
+						ctRatio = "150/5";					
 					}
 					else if(currentRecord.getCtr_overall_mf().compareTo(new BigDecimal("40"))==0)
 					{
