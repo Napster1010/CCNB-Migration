@@ -164,7 +164,7 @@ public class Migration {
 						String tariffCategory = currentRecord.getOld_trf_catg().trim();
 						BigDecimal sanctionedLoad = currentRecord.getSanctioned_load();
 						String sanctionedLoadUnit = currentRecord.getSanctioned_load_unit().trim();
-						if(tariffCategory.startsWith("LV1") || tariffCategory.startsWith("LV2")) {
+						if(tariffCategory.startsWith("LV1") || tariffCategory.startsWith("LV2") || tariffCategory.startsWith("LV3.2")) {
 							if(currentRecord.isHas_ctr()) {
 								meterMaster.setCapacity("-/5");
 								meterMaster.setPhase("THREE");
