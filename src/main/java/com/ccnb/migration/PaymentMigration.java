@@ -16,7 +16,7 @@ import com.ccnb.util.PathUtil;
 
 public class PaymentMigration {
 	
-	private static final int noOfThreads = 2;
+	private static final int noOfThreads = 3;
 
 	public static void main(String[] args) throws Exception {
 

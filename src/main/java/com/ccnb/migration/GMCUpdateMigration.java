@@ -55,8 +55,11 @@ public class GMCUpdateMigration {
 		
 		for(String cons: consumerNos) {
 			System.out.println();
-			session.beginTransaction();
 			try {
+
+				session.clear();
+				session.beginTransaction();
+				session.flush();
 
 				// retrieve consumer no
 				Query<String> consumerNoMasterQuery = session.createQuery("select consumerNo from ConsumerNoMaster where oldServiceNoOne = ?");
