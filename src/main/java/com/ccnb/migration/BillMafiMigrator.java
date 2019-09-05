@@ -57,7 +57,10 @@ public class BillMafiMigrator {
 
 		for (CCNBBillMafi currentRecord : unmigratedSaralRecords) {
 			try {
+				session.clear();
 				session.beginTransaction();
+				session.flush();
+
 				BillMafiScheme billMafiScheme = new BillMafiScheme();
 
 				// retrieve consumer no

@@ -55,7 +55,9 @@ public class SecurityDepositInterestMigrator {
 		String billMonth = billMonthQuery.uniqueResult();
 		
 		for(String consumerNo: consumerNos) {
+			session.clear();
 			session.beginTransaction();
+			session.flush();
 			
 			SecurityDepositInterest securityDepositInterest = new SecurityDepositInterest();
 			securityDepositInterest.setConsumerNo(consumerNo);

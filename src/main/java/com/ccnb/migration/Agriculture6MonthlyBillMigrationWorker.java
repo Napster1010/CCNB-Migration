@@ -43,7 +43,9 @@ public class Agriculture6MonthlyBillMigrationWorker implements Runnable {
 
 			for (CCNBAgricultureBill6Monthly currentRecord : unmigratedRecords) {
 				try {
+					session.clear();
 					session.beginTransaction();
+					session.flush();
 
 					// retrieve consumer no
 					consumerNoMasterQuery = session.createQuery("select consumerNo from ConsumerNoMaster where oldServiceNoOne = ?");

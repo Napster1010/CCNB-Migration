@@ -90,6 +90,7 @@ public class Migration {
 		
 		for(CCNBNSCStagingMigration currentRecord: unmigratedRecords) {
 			try {
+				session.clear();
 				session.beginTransaction();
 				session.flush();
 

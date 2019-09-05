@@ -52,7 +52,10 @@ public class ConsumerMiscellaneousInformationSaralMigration {
 
 		for (CCNBNSCStagingMigration currentRecord : unmigratedSaralRecords) {
 			try {
+				session.clear();
 				session.beginTransaction();
+				session.flush();
+
 				boolean isSaral = false;
 
 				// retrieve consumer no

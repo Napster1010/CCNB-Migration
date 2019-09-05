@@ -49,7 +49,9 @@ public class ReadMigrationWorker implements Runnable {
 			
 			for(CCNBRead currentRecord: unmigratedRecords) {
 				try {
+					session.clear();
 					session.beginTransaction();
+					session.flush();
 					
 					//retrieve consumer no
 					consumerNoMasterQuery = session.createQuery("from ConsumerNoMaster where oldServiceNoOne = ?");

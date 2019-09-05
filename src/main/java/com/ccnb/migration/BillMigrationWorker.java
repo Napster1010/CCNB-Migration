@@ -44,9 +44,11 @@ public class BillMigrationWorker implements Runnable{
 			billQuery.setParameter(0, currentBillMonth);
 			List<CCNBBill> unmigratedRecords = billQuery.list();
 			
-			for(CCNBBill currentRecord: unmigratedRecords) {
+			for(CCNBBill currentRecord: unmigratedRecords) {				
 				try {
+					session.clear();
 					session.beginTransaction();
+					session.flush();
 					
 					//retrieve consumer no
 					consumerNoMasterQuery = session.createQuery("from ConsumerNoMaster where oldServiceNoOne = ?");

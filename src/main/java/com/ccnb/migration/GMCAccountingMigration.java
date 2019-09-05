@@ -56,7 +56,10 @@ public class GMCAccountingMigration {
 
 		for (CCNBGMCAccounting currentRecord : unmigratedRecords) {
 			try {
+				session.clear();
 				session.beginTransaction();
+				session.flush();
+
 				GMCAccounting gmcAccounting = new GMCAccounting();
 
 				// retrieve consumer no

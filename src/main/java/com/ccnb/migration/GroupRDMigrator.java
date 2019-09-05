@@ -73,7 +73,9 @@ public class GroupRDMigrator {
 				{
 					try
 					{
-						session.beginTransaction();						
+						session.clear();
+						session.beginTransaction();
+						session.flush();
 						
 						for(String groupNo: groups)
 						{

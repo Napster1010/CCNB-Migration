@@ -22,7 +22,7 @@ import com.ccnb.util.PathUtil;
 
 public class BillMigration {
 	
-	private static final int noOfThreads = 2;
+	private static final int noOfThreads = 3;
 
 	public static void main(String[] args) throws Exception {
 

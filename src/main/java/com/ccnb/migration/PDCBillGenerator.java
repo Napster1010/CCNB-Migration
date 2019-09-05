@@ -65,7 +65,9 @@ public class PDCBillGenerator {
 							
 		for(CCNBNSCStagingMigration currentRecord: pdcConsumers) {
 			try {
+				session.clear();
 				session.beginTransaction();
+				session.flush();
 				
 				//retrieve consumer no
 				consumerNoMasterQuery = session.createQuery("from ConsumerNoMaster where oldServiceNoOne = :consNo");
