@@ -166,7 +166,7 @@ public class Migration {
 						String sanctionedLoadUnit = currentRecord.getSanctioned_load_unit().trim();
 						if(tariffCategory.startsWith("LV1") || tariffCategory.startsWith("LV2") || tariffCategory.startsWith("LV3.2")) {
 							if(currentRecord.isHas_ctr()) {
-								meterMaster.setCapacity("-/5");
+								meterMaster.setCapacity("-/5");	
 								meterMaster.setPhase("THREE");
 								meterMaster.setCode("CTT");
 								meterMaster.setDescription("C.T.Three Phase Meter");
@@ -720,7 +720,7 @@ public class Migration {
 			nscStagingMigration.setTariff_code("LV1.UM");
 			nscStagingMigration.setPurpose_of_installation("Domestic light and fan Un-Metered");
 			
-			BigDecimal sanctionedLoad = nscStagingMigration.getSanctioned_load();
+			BigDecimal sanctionedLoad = nscStagingMigration.getSanctioned_load().setScale(1, RoundingMode.HALF_UP);
 			if(sanctionedLoad.compareTo(new BigDecimal("0.2"))<=0) {
 				nscStagingMigration.setSub_category_code(115);
 				

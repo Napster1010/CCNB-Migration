@@ -113,7 +113,7 @@ public class AsdMigration {
 					}
 
 					/////////////////////////////////////////Set posted and deleted as false//////////////////////////////////////////////////////					
-					if(ccnbnscStagingMigration.isIs_employee() || ccnbnscStagingMigration.isSaral() || "TEMPORARY".equals(ccnbnscStagingMigration.getConnection_type()))
+					if(ccnbnscStagingMigration.isIs_employee() || ccnbnscStagingMigration.isSaral() || ccnbnscStagingMigration.getOld_trf_catg().contains("T") || ccnbnscStagingMigration.getOld_trf_catg().trim().equals("LV1.2N"))
 						additionalSecurityDepositInstallment.setDeleted(true);
 					else
 						additionalSecurityDepositInstallment.setDeleted(false);
