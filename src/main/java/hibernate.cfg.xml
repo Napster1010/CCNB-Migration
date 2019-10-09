@@ -76,6 +76,8 @@
         <mapping class="com.ccnb.bean.CCNBBillMafi"/>      
         <mapping class="com.ccnb.bean.BillMafiScheme"/>      
         <mapping class="com.ccnb.bean.CCNBGMCUpdate"/>      
+        <mapping class="com.ccnb.bean.CCNBSchedule"/>      
+        <mapping class="com.ccnb.bean.Schedule"/>      
 		    
 	</session-factory>
 
