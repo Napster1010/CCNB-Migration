@@ -11,6 +11,7 @@ import java.math.BigInteger;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 import org.apache.poi.ss.usermodel.Cell;
@@ -51,7 +52,7 @@ public class NSCStagingExcelMigrator {
 		}
 		catch(Exception e){}
 		
-		File excel = new File(PathUtil.baseExcelFolder + "Jabalpur_NSC.xlsx");//nsc_3424624
+		File excel = new File(PathUtil.baseExcelFolder + "NSC_STAGING.xlsx");//nsc_3424624
     	InputStream is = new FileInputStream(excel);
     	Workbook workbook = StreamingReader.builder()
     	        .rowCacheSize(100)    
@@ -78,6 +79,9 @@ public class NSCStagingExcelMigrator {
 		dateFormats.add(ccnbDateFormat);
 		dateFormats.add(ccnbDateFormat1);
 		dateFormats.add(ccnbDateFormat2);
+		
+		//Meter identifier variables
+		HashMap<String, Long> meterSerialNumberMap = new HashMap<>();
 		
     	for(Row r: sheet)
     	{
@@ -452,6 +456,27 @@ public class NSCStagingExcelMigrator {
         		//Saving the created bean Object
         		try
         		{
+        			//change the meter identifier
+        			String locationCode = ccnbNscStagingMigration.getLocation_code();
+        			String subLocationCode = locationCode.substring(3, 7);
+        			subLocationCode = "M".concat(subLocationCode);
+        			long newSerial;
+        			
+        			if(meterSerialNumberMap.containsKey(locationCode)) {
+        				newSerial = meterSerialNumberMap.get(locationCode) + 1;
+        				meterSerialNumberMap.put(locationCode, newSerial);
+        			}else {
+        				meterSerialNumberMap.put(locationCode, 1L);
+        				newSerial = 1;
+        			}
+        			
+        			String oldMeterIdentifier = ccnbNscStagingMigration.getMeter_identifier();
+        			if(oldMeterIdentifier==null)
+        				oldMeterIdentifier="";
+        			
+        			String newMeterIdentifier = oldMeterIdentifier.concat("-").concat(subLocationCode).concat("-").concat(String.valueOf(newSerial));
+        			ccnbNscStagingMigration.setMeter_identifier(newMeterIdentifier);
+        			
         			ccnbNscStagingMigration.setMigrated(false);
         			session.beginTransaction();
 	        		session.flush();
