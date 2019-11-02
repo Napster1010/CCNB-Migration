@@ -477,6 +477,41 @@ public class NSCStagingExcelMigrator {
         			String newMeterIdentifier = oldMeterIdentifier.concat("-").concat(subLocationCode).concat("-").concat(String.valueOf(newSerial));
         			ccnbNscStagingMigration.setMeter_identifier(newMeterIdentifier);
         			
+        			
+        			//check if purpose of installation or purpose of installation CD is null
+        			if(ccnbNscStagingMigration.getCcnbPurposeOfInstallation()==null || ccnbNscStagingMigration.getCcnbPurposeOfInstallation().isEmpty() || ccnbNscStagingMigration.getPurposeOfInstallationCD()==null || ccnbNscStagingMigration.getPurposeOfInstallationCD().isEmpty()) {
+        				String saType = ccnbNscStagingMigration.getSaType();
+        				String newPurposeOfInstallationCd = ccnbNscStagingMigration.getPurposeOfInstallationCD(), newPurposeOfInstallation = ccnbNscStagingMigration.getPurpose_of_installation();
+        				
+        				if((saType.equals("CM_BPLNS") || saType.equals("CM_IPLNS") || saType.equals("CM_JPLNS")) && ccnbNscStagingMigration.getOld_trf_catg().startsWith("LV4")) {
+        					newPurposeOfInstallationCd = "CM_USAGE";
+        					newPurposeOfInstallation = "OTHERS";
+        					
+        				}else if((saType.equals("CM_BPUA") || saType.equals("CM_IPUA") || saType.equals("CM_JPUA")) && ccnbNscStagingMigration.getOld_trf_catg().equals("LV5.4")) {
+        					newPurposeOfInstallationCd = "CM_USAGE";
+        					newPurposeOfInstallation = "AGRI_PUMP";
+        					
+        				}else if((saType.equals("CM_BPMGD") || saType.equals("CM_JPMGD") || saType.equals("CM_IPMGD")) && ccnbNscStagingMigration.getOld_trf_catg().equals("LV1.2")) {
+        					newPurposeOfInstallationCd = "CM_USDOM";
+        					newPurposeOfInstallation = "DOMESTIC";
+        					
+        				}else if((saType.equals("CM_BPMND") || saType.equals("CM_IPMND") || saType.equals("CM_JPMND") || saType.equals("CM_BPMNG") || saType.equals("CM_IPMNG") || saType.equals("CM_JPMNG"))) {
+        					if(ccnbNscStagingMigration.getOld_trf_catg().equals("LV2.1")) {
+            					newPurposeOfInstallationCd = "CM_USND";
+            					newPurposeOfInstallation = "EDUCATION_INST";
+        						
+        					}else if(ccnbNscStagingMigration.getOld_trf_catg().equals("LV2.2")) {
+            					newPurposeOfInstallationCd = "CM_USND";
+            					newPurposeOfInstallation = "NON-DOM_L&F";
+        						
+        					}        					
+        				}
+        				
+        				ccnbNscStagingMigration.setPurposeOfInstallationCD(newPurposeOfInstallationCd);
+        				ccnbNscStagingMigration.setCcnbPurposeOfInstallation(newPurposeOfInstallation);
+        				
+        			}
+        			
         			ccnbNscStagingMigration.setMigrated(false);
         			session.beginTransaction();
 	        		session.flush();
