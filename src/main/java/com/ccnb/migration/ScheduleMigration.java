@@ -46,7 +46,7 @@ public class ScheduleMigration {
 		Query<CCNBSchedule> ccnbScheduleQuery = session.createQuery("from CCNBSchedule where migrated=false and status='B'");
 		List<CCNBSchedule> unmigratedRecords = ccnbScheduleQuery.list();
 		
-		Query<String> consumerNoMasterQuery;
+		Query<String> nscStagingMigrationQuery;
 		Query<Integer> migrationStatus;
 		
 		for(CCNBSchedule currentRecord: unmigratedRecords) {
@@ -56,11 +56,11 @@ public class ScheduleMigration {
 				session.flush();
 				
 				//retrieve consumer no
-				consumerNoMasterQuery = session.createQuery("select groupNo from ConsumerNoMaster where oldGroupNo = ?");
-				consumerNoMasterQuery.setParameter(0, currentRecord.getGroupNo());
-				consumerNoMasterQuery.setMaxResults(1);
+				nscStagingMigrationQuery = session.createQuery("select group_no from NSCStagingMigration where old_gr_no = ?");
+				nscStagingMigrationQuery.setParameter(0, currentRecord.getGroupNo());
+				nscStagingMigrationQuery.setMaxResults(1);
 				
-				String newGroupNo = consumerNoMasterQuery.uniqueResult();
+				String newGroupNo = nscStagingMigrationQuery.uniqueResult();
 				if(newGroupNo==null)
 					throw new Exception("NGB group number not found!!");
 				
