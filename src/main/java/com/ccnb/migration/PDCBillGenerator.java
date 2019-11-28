@@ -193,13 +193,13 @@ public class PDCBillGenerator {
 	
 	private static String getLatestBillMonth(Session session) {
 		String billMonth=null;
+		SimpleDateFormat billMonthFormat = new SimpleDateFormat("MMM-yyyy");
 		
-		Query<Bill> latestBillQuery = session.createQuery("from Bill where billTypeCode='MIG' order by id DESC");
-		latestBillQuery.setMaxResults(1);
+		Query<Date> latestBillMonthQuery = session.createQuery("select max(to_date(billMonth, 'MON-YYYY')) from Bill where billTypeCode='MIG'");
 		
-		Bill latestBill = latestBillQuery.uniqueResult();
+		Date latestBill = latestBillMonthQuery.uniqueResult();
 		if(latestBill!=null)
-			billMonth = latestBill.getBillMonth();
+			billMonth = billMonthFormat.format(latestBill).toUpperCase();
 		
 		return billMonth;
 	}
