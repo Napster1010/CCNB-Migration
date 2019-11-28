@@ -512,6 +512,20 @@ public class NSCStagingExcelMigrator {
         				
         			}
         			
+        			//change meter capacity based on meter rent
+        			String meterRent = ccnbNscStagingMigration.getMeterRent();
+        			BigDecimal ctrOverallMf = ccnbNscStagingMigration.getCtr_overall_mf();
+        			if(meterRent!=null && !meterRent.trim().isEmpty()) {
+        				if(meterRent.equals("10") || meterRent.equals("15")) 
+        					ccnbNscStagingMigration.setMeterCapacity("5-30 AMPERES");
+        				else if(meterRent.equals("25")) 
+        					ccnbNscStagingMigration.setMeterCapacity("10-40 AMPERES");        					
+        				else if(meterRent.equals("125") && BigDecimal.ZERO.compareTo(ctrOverallMf)==0)
+        					ccnbNscStagingMigration.setMeterCapacity("20-80 AMPERES");        					
+        				else if(meterRent.equals("125") && BigDecimal.ZERO.compareTo(ctrOverallMf)!=0)
+        					ccnbNscStagingMigration.setMeterCapacity("-/5 AMPERES");        					      				
+        			}        			
+        			
         			ccnbNscStagingMigration.setMigrated(false);
         			session.beginTransaction();
 	        		session.flush();
