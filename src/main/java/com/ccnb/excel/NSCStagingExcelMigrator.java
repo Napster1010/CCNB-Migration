@@ -79,10 +79,7 @@ public class NSCStagingExcelMigrator {
 		dateFormats.add(ccnbDateFormat);
 		dateFormats.add(ccnbDateFormat1);
 		dateFormats.add(ccnbDateFormat2);
-		
-		//Meter identifier variables
-		HashMap<String, Long> meterSerialNumberMap = new HashMap<>();
-		
+				
     	for(Row r: sheet)
     	{
         	CCNBNSCStagingMigration ccnbNscStagingMigration = new CCNBNSCStagingMigration();
@@ -457,24 +454,8 @@ public class NSCStagingExcelMigrator {
         		try
         		{
         			//change the meter identifier
-        			String locationCode = ccnbNscStagingMigration.getLocation_code();
-        			String subLocationCode = locationCode.substring(3, 7);
-        			subLocationCode = "M".concat(subLocationCode);
-        			long newSerial;
-        			
-        			if(meterSerialNumberMap.containsKey(locationCode)) {
-        				newSerial = meterSerialNumberMap.get(locationCode) + 1;
-        				meterSerialNumberMap.put(locationCode, newSerial);
-        			}else {
-        				meterSerialNumberMap.put(locationCode, 1L);
-        				newSerial = 1;
-        			}
-        			
-        			String oldMeterIdentifier = ccnbNscStagingMigration.getMeter_identifier();
-        			if(oldMeterIdentifier==null)
-        				oldMeterIdentifier="";
-        			
-        			String newMeterIdentifier = oldMeterIdentifier.concat("-").concat(subLocationCode).concat("-").concat(String.valueOf(newSerial));
+        			String oldMeterIdentifier = (ccnbNscStagingMigration.getMeter_identifier()==null) ? "" : ccnbNscStagingMigration.getMeter_identifier();
+        			String newMeterIdentifier = oldMeterIdentifier.concat("-").concat(ccnbNscStagingMigration.getOld_cons_no());
         			ccnbNscStagingMigration.setMeter_identifier(newMeterIdentifier);
         			
         			
