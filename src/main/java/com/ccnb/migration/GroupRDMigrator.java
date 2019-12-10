@@ -103,7 +103,10 @@ public class GroupRDMigrator {
 								{
 									ReadingDiaryNo readingDiary = new ReadingDiaryNo();
 									readingDiary.setGroupNo(groupNo);
-									readingDiary.setReadingDiaryNo(readingDiaryNo);
+									Integer readingDiaryNoInt = Integer.parseInt(readingDiaryNo);
+									if(readingDiaryNoInt==0)
+										readingDiaryNoInt = 1;
+									readingDiary.setReadingDiaryNo(readingDiaryNoInt.toString());
 									session.save(readingDiary);
 									++readingDiaryCount;
 								}

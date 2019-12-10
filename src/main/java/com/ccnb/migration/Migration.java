@@ -253,7 +253,12 @@ public class Migration {
 				zoneQuery.setParameter(0, currentRecord.getLocation_code().trim());
 				String shortCode = (String)zoneQuery.uniqueResult();
 				if(shortCode!=null) {
-					String groupNo = currentRecord.getOld_gr_no().trim().substring(2);
+					String oldGroupNo = currentRecord.getOld_gr_no().trim();
+					String groupNo = "";
+					for(int x=0; x<oldGroupNo.length(); x++) {
+						if(Character.isDigit(oldGroupNo.charAt(x)))
+							groupNo += oldGroupNo.charAt(x);
+					}
 					Integer newGroupNo = Integer.parseInt(groupNo);
 					groupNo = newGroupNo.toString();
 					nscStagingMigration.setGroup_no(shortCode.trim().concat(groupNo));
