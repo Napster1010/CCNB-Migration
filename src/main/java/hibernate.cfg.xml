@@ -78,6 +78,7 @@
         <mapping class="com.ccnb.bean.CCNBGMCUpdate"/>      
         <mapping class="com.ccnb.bean.CCNBSchedule"/>      
         <mapping class="com.ccnb.bean.Schedule"/>      
+        <mapping class="com.ccnb.bean.ConsumerFeederMapping"/>      
 		    
 	</session-factory>
 
