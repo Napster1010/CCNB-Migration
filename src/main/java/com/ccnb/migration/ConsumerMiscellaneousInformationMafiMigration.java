@@ -4,6 +4,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.PrintWriter;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
@@ -40,6 +41,7 @@ public class ConsumerMiscellaneousInformationMafiMigration {
 
 		SessionFactory sessionFactory = new Configuration().configure().buildSessionFactory();
 		Session session = sessionFactory.openSession();
+		SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
 		long startTime = System.currentTimeMillis();
 
 		Query<CCNBNSCStagingMigration> ccnbMafiQuery = session.createQuery("from CCNBNSCStagingMigration where old_trf_catg like 'LV1%' and is_bill_mafi=true and bill_mafi_migrated=false");
@@ -65,7 +67,7 @@ public class ConsumerMiscellaneousInformationMafiMigration {
 					consumerMiscellaneousInformation.setPropertyName("is_bill_mafi");
 					consumerMiscellaneousInformation.setPropertyValue("Y");
 					consumerMiscellaneousInformation.setEffectiveStartDate(new Date());
-					consumerMiscellaneousInformation.setEffectiveEndDate(new Date());
+					consumerMiscellaneousInformation.setEffectiveEndDate(dateFormat.parse("01-01-2050"));
 					consumerMiscellaneousInformation.setIsActive(true);
 					consumerMiscellaneousInformation.setCreatedBy("CCNB_MIG");
 					consumerMiscellaneousInformation.setCreatedOn(new Date());
