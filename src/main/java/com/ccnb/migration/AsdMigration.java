@@ -120,7 +120,7 @@ public class AsdMigration {
 					else
 						additionalSecurityDepositInstallment.setDeleted(false);
 					
-					additionalSecurityDepositInstallment.setPosted(false);
+					additionalSecurityDepositInstallment.setPosted(true);
 					session.save(additionalSecurityDepositInstallment);					
 				}
 				
