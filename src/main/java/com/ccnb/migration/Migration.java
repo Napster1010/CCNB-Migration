@@ -269,7 +269,7 @@ public class Migration {
 				if(currentRecord.getOld_rd_no().trim().equals("0"))
 					nscStagingMigration.setReading_diary_no("1");
 				else				
-					nscStagingMigration.setReading_diary_no(currentRecord.getOld_rd_no());
+					nscStagingMigration.setReading_diary_no(String.valueOf(Integer.parseInt(currentRecord.getOld_rd_no())));
 				
 				nscStagingMigration.setAffiliated(currentRecord.isAffiliated());
 				
