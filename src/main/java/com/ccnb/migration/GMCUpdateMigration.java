@@ -148,8 +148,26 @@ public class GMCUpdateMigration {
 					else
 						throw new Exception("Invalid premise type!!");
 																	
+				}else if(tariffCode.equals("LV5")) {
+
+					//variable to store contract demand sum 
+					BigDecimal contractDemandSum = BigDecimal.ZERO;
+					
+					for(CCNBGMCUpdate ccnbgmcUpdate: gmcUpdateRecords) {
+						if(BigDecimal.ZERO.compareTo(new BigDecimal(ccnbgmcUpdate.getContractDemand()))==0)
+							contractDemandSum = contractDemandSum.add(new BigDecimal(ccnbgmcUpdate.getSanctionedLoad()));
+						else
+							contractDemandSum = contractDemandSum.add(new BigDecimal(ccnbgmcUpdate.getContractDemand()));
+					}						
+					if("URBAN".equals(latestGmcUpdate.getPremiseType()))
+						totalGmcUnits = contractDemandSum.multiply(new BigDecimal(30)); 								
+					else if("RURAL".equals(latestGmcUpdate.getPremiseType()))
+						totalGmcUnits = contractDemandSum.multiply(new BigDecimal(15));
+					else
+						throw new Exception("Invalid premise type!!");
+																						
 				}else
-					throw new Exception("Tariff code other than LV2 or LV4 found !!");				
+					throw new Exception("Tariff code other than LV2, LV4 or LV5 found !!");				
 				
 				//update gmc row with new gmc value
 				updateGmcBean(gmcAccounting, totalGmcUnits);

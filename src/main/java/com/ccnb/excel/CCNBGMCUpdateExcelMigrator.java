@@ -115,10 +115,15 @@ public class CCNBGMCUpdateExcelMigrator {
         		//Saving the created bean Object
         		try
         		{
-        			if("LV4".equals(ccnbGmcUpdate.getTariffCode()) && "KW".equals(ccnbGmcUpdate.getContractDemandUnit())) {
+        			if(("LV4".equals(ccnbGmcUpdate.getTariffCode()) || "LV5".equals(ccnbGmcUpdate.getTariffCode())) && "KW".equals(ccnbGmcUpdate.getContractDemandUnit())) {
         				BigDecimal contractDemand = new BigDecimal(ccnbGmcUpdate.getContractDemand()).divide(new BigDecimal("0.746"), 2, RoundingMode.HALF_UP);
         				ccnbGmcUpdate.setContractDemand(contractDemand.toString());
         				ccnbGmcUpdate.setContractDemandUnit("HP");
+        			}
+        			if("LV2".equals(ccnbGmcUpdate.getTariffCode()) && "HP".equals(ccnbGmcUpdate.getContractDemandUnit())) {
+        				BigDecimal contractDemand = new BigDecimal(ccnbGmcUpdate.getContractDemand()).multiply(new BigDecimal("0.746"));
+        				ccnbGmcUpdate.setContractDemand(contractDemand.toString());
+        				ccnbGmcUpdate.setContractDemandUnit("KW");
         			}
         			
         			BigDecimal contractDemand = new BigDecimal(ccnbGmcUpdate.getContractDemand()).setScale(0, RoundingMode.HALF_UP);
