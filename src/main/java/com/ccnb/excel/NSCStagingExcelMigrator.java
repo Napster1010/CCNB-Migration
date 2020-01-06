@@ -52,7 +52,7 @@ public class NSCStagingExcelMigrator {
 		}
 		catch(Exception e){}
 		
-		File excel = new File(PathUtil.baseExcelFolder + "NSC_STAGING.xlsx");//nsc_3424624
+		File excel = new File(PathUtil.baseExcelFolder + "REV_NSC_3614602.xlsx");//nsc_3424624
     	InputStream is = new FileInputStream(excel);
     	Workbook workbook = StreamingReader.builder()
     	        .rowCacheSize(100)    
@@ -126,10 +126,7 @@ public class NSCStagingExcelMigrator {
 	        			
 	        			case 14: ccnbNscStagingMigration.setAddress_3_h(cellValue);break;
 	        			
-	        			case 15:
-	        				if(cellValue.length()==10)
-	        					ccnbNscStagingMigration.setPrimary_mobile_no(cellValue);
-	        				break;
+	        			case 15: ccnbNscStagingMigration.setPrimary_mobile_no(cellValue);break;
 	        			
 	        			case 16: 
 	        				if(cellValue.length()==10)
