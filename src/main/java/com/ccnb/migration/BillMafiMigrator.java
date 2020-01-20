@@ -75,7 +75,7 @@ public class BillMafiMigrator {
 				billMafiScheme.setConsumerNo(consumerNo);
 				billMafiScheme.setAppliedOn(currentRecord.getYojnaDate());
 				billMafiScheme.setArrear(new BigDecimal(currentRecord.getPrincipalArrear()));
-				BigDecimal half = billMafiScheme.getArrear().divide(new BigDecimal("2")).setScale(2, RoundingMode.HALF_UP);
+				BigDecimal half = billMafiScheme.getArrear().divide(new BigDecimal("2"), 2, RoundingMode.HALF_UP);
 				billMafiScheme.setExemptedByDiscom(half);
 				billMafiScheme.setSubsidyByGovernment(half);
 				billMafiScheme.setAsdArrear(BigDecimal.ZERO);

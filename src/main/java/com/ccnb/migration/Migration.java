@@ -750,7 +750,7 @@ public class Migration {
 		nscStagingMigration.setTariff_category("LV3");
 		
 		if(currentRecord.getOld_trf_catg().trim().startsWith("LV3.1") && currentRecord.getSanctioned_load_unit().equals("KW")) {
-			currentRecord.setSanctioned_load(currentRecord.getSanctioned_load().divide(new BigDecimal("0.746")).setScale(2, RoundingMode.HALF_UP));
+			currentRecord.setSanctioned_load(currentRecord.getSanctioned_load().divide(new BigDecimal("0.746"), 2, RoundingMode.HALF_UP));
 			currentRecord.setSanctioned_load_unit("HP");
 		}
 		
