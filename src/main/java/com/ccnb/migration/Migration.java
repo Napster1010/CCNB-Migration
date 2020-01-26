@@ -752,11 +752,15 @@ public class Migration {
 		if(currentRecord.getOld_trf_catg().trim().startsWith("LV3.1") && currentRecord.getSanctioned_load_unit().equals("KW")) {
 			currentRecord.setSanctioned_load(currentRecord.getSanctioned_load().divide(new BigDecimal("0.746"), 2, RoundingMode.HALF_UP));
 			currentRecord.setSanctioned_load_unit("HP");
+			nscStagingMigration.setSanctioned_load(currentRecord.getSanctioned_load());
+			nscStagingMigration.setSanctioned_load_unit(currentRecord.getSanctioned_load_unit());
 		}
 		
 		if(currentRecord.getOld_trf_catg().trim().startsWith("LV3.2") && currentRecord.getSanctioned_load_unit().equals("HP")) {
 			currentRecord.setSanctioned_load(currentRecord.getSanctioned_load().multiply(new BigDecimal("0.746")).setScale(2, RoundingMode.HALF_UP));
 			currentRecord.setSanctioned_load_unit("KW");
+			nscStagingMigration.setSanctioned_load(currentRecord.getSanctioned_load());
+			nscStagingMigration.setSanctioned_load_unit(currentRecord.getSanctioned_load_unit());
 		}
 		
 		if(currentRecord.getOld_trf_catg().trim().equals("LV3.1.A") || currentRecord.getOld_trf_catg().trim().equals("LV3.1A-B") || currentRecord.getOld_trf_catg().trim().equals("LV3.1A-I")) {
@@ -862,6 +866,13 @@ public class Migration {
 		String phase = nscStagingMigration.getPhase();
 		String premiseType = currentRecord.getPremise_type().trim();
 		nscStagingMigration.setTariff_category("LV5");
+		
+		if(currentRecord.getSanctioned_load_unit().equals("KW")) {
+			currentRecord.setSanctioned_load(currentRecord.getSanctioned_load().divide(new BigDecimal("0.746"), 2, RoundingMode.HALF_UP));
+			currentRecord.setSanctioned_load_unit("HP");
+			nscStagingMigration.setSanctioned_load(currentRecord.getSanctioned_load());
+			nscStagingMigration.setSanctioned_load_unit(currentRecord.getSanctioned_load_unit());
+		}		
 		
 		if((ccnbTariffCategory.equals("LV5.1B") || ccnbTariffCategory.equals("LV5.1B3") || ccnbTariffCategory.equals("LV5.2.B") || ccnbTariffCategory.equals("LV5.2.B3")) && ccnbPurposeOfInstallationCd.equals("CM_USAGO") && ccnbPurposeOfInstallation.equals("TEMP_AG_UM")) {
 			nscStagingMigration.setPurpose_of_installation_id(141);
