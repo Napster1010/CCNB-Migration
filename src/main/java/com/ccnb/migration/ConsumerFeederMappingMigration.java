@@ -8,6 +8,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.poi.ss.formula.IStabilityClassifier;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
@@ -64,7 +65,12 @@ public class ConsumerFeederMappingMigration {
 				ConsumerMiscellaneousInformation consumerMiscellaneousInformation = new ConsumerMiscellaneousInformation();
 				consumerMiscellaneousInformation.setConsumerNo(consumerNo);
 				consumerMiscellaneousInformation.setPropertyName("feeder_code");
+				
+				if(currentRecord.getFeederCode()==null || currentRecord.getFeederCode().trim().isEmpty() || isAlpha(currentRecord.getFeederCode()))
+					throw new Exception("Invalid Feeder Code!!");
+					
 				consumerMiscellaneousInformation.setPropertyValue(currentRecord.getFeederCode());
+				
 				consumerMiscellaneousInformation.setEffectiveStartDate(new Date());
 				consumerMiscellaneousInformation.setEffectiveEndDate(dateFormat.parse("01-01-2050"));
 				consumerMiscellaneousInformation.setIsActive(true);
@@ -107,4 +113,9 @@ public class ConsumerFeederMappingMigration {
 		sessionFactory.close();
 		writer.close();
 	}
+	
+	private static boolean isAlpha(String string) {
+	    String alphaRegex = "^[a-zA-Z]*$";
+	    return string.matches(alphaRegex);
+	}	
 }

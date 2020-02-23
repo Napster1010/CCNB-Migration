@@ -475,6 +475,11 @@ public class Migration {
 						meterCapacity = "100/5";
 						ctRatio = "500/5";					
 					}
+					else if(currentRecord.getCtr_overall_mf().compareTo(new BigDecimal("10"))==0)
+					{
+						meterCapacity = "-/5";
+						ctRatio = "50/5";					
+					}
 					else if(currentRecord.getCtr_overall_mf().compareTo(new BigDecimal("15"))==0)
 					{
 						meterCapacity = "-/5";

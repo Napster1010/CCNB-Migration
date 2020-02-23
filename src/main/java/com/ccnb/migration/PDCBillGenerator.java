@@ -119,6 +119,7 @@ public class PDCBillGenerator {
 								bill.setNetBill(bill.getArrear());
 								bill.setPristineNetBill(bill.getArrear());
 							}
+							bill.setPristineCurrentBill(bill.getCurrentBill());
 
 							session.save(bill);
 							++recordCount;
@@ -157,6 +158,8 @@ public class PDCBillGenerator {
 						bill.setNetBill(totalOutstanding);
 						bill.setPristineNetBill(totalOutstanding);
 					}
+					
+					bill.setPristineCurrentBill(bill.getCurrentBill());
 					session.save(bill);
 					++recordCount;
 				}
