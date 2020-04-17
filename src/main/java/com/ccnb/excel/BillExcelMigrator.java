@@ -238,9 +238,6 @@ public class BillExcelMigrator {
 				workbook.close();		    
 			}
 		}
-		
-        
-		
 		session.close();
 		
 		long endTime = System.currentTimeMillis();

@@ -170,7 +170,6 @@ public class ReadExcelMigrator {
 				workbook.close();		    
 			}
 		}
-
 		session.close();
 		
 		long endTime = System.currentTimeMillis();
