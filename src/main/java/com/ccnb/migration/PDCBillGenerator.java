@@ -4,28 +4,26 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.PrintWriter;
-import java.math.BigDecimal;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.query.Query;
 
-import com.ccnb.bean.AdditionalSecurityDeposit;
-import com.ccnb.bean.AdditionalSecurityDepositInstallment;
-import com.ccnb.bean.Bill;
-import com.ccnb.bean.CCNBAsd;
 import com.ccnb.bean.CCNBNSCStagingMigration;
-import com.ccnb.bean.ConsumerNoMaster;
-import com.ccnb.bean.Payment;
 import com.ccnb.util.PathUtil;
+import com.google.common.collect.Lists;
 
 public class PDCBillGenerator {
-
+	private static final int noOfPartitions = 10;
+	
 	public static void main(String[] args) throws Exception {
 		// For creating a exception Text File
 		long exceptionCount = 0, recordCount = 0;
@@ -50,141 +48,54 @@ public class PDCBillGenerator {
 		Session session = sessionFactory.openSession();
 		long startTime = System.currentTimeMillis();
 
-		final SimpleDateFormat billMonthFormat = new SimpleDateFormat("MMM-yyyy");
-		Query<CCNBNSCStagingMigration> pdcQuery = session.createQuery("from CCNBNSCStagingMigration where status='D'");
+		Query<CCNBNSCStagingMigration> pdcQuery = session.createQuery("from CCNBNSCStagingMigration where status='D'", CCNBNSCStagingMigration.class);
 		List<CCNBNSCStagingMigration> pdcConsumers = pdcQuery.list();
-
-		Query<ConsumerNoMaster> consumerNoMasterQuery;
 
 		// get latest bill month from bill table
 		String latestBillMonth = getLatestBillMonth(session);
+		System.out.println("GOT BILL MONTH: " + latestBillMonth);
 		if (latestBillMonth == null)
 			throw new Exception("No bill was found in bill table !!");
-
-		for (CCNBNSCStagingMigration currentRecord : pdcConsumers) {
-			try {
-				session.clear();
-				session.beginTransaction();
-				session.flush();
-
-				// retrieve consumer no
-				consumerNoMasterQuery = session.createQuery("from ConsumerNoMaster where oldServiceNoOne = :consNo");
-				consumerNoMasterQuery.setParameter("consNo", currentRecord.getOld_cons_no());
-
-				ConsumerNoMaster consumerNoMaster = consumerNoMasterQuery.uniqueResult();
-				if (consumerNoMaster == null)
-					throw new Exception("NGB consumer number not found!!");
-
-				BigDecimal totalOutstanding = new BigDecimal(currentRecord.getTotal_outstanding());
-				BigDecimal securityDepositAmount = currentRecord.getSecurity_deposit_amount();
-
-				// get pdc date
-				Date pdcDate = currentRecord.getPdcDate();
-
-				// outstanding amount
-				Long currentOutstanding = Long.parseLong(totalOutstanding.toString());
-
-				if (pdcDate != null) {
-					// start with the latest bill month
-					Date counterDate = billMonthFormat.parse(latestBillMonth);
-					Calendar counterCalendar = Calendar.getInstance();
-					counterCalendar.setTime(counterDate);
-
-					// for inserting 12 bills for the consumer
-					for (int i = 1; i <= 12; i++) {
-						// check for payments and keep creating bills in decreasing order of bill months
-						// (keep in mind the pdc date)
-						if (pdcDate.before(counterDate)) {
-
-							Bill bill = new Bill();
-							initializeInstance(bill);
-
-							bill.setLocationCode(consumerNoMaster.getLocationCode());
-							bill.setGroupNo(consumerNoMaster.getGroupNo());
-							bill.setReadingDiaryNo(consumerNoMaster.getReadingDiaryNo());
-							bill.setConsumerNo(consumerNoMaster.getConsumerNo());
-							bill.setBillMonth(billMonthFormat.format(counterDate).toUpperCase());
-							bill.setBillDate(pdcDate);
-							bill.setDueDate(pdcDate);
-							bill.setChequeDueDate(pdcDate);
-
-							if (totalOutstanding.compareTo(BigDecimal.ZERO) == 0) {
-								bill.setArrear(BigDecimal.ZERO);
-								bill.setCumulativeSurcharge(BigDecimal.ZERO);
-								bill.setNetBill(BigDecimal.ZERO);
-								bill.setPristineNetBill(BigDecimal.ZERO);
-							} else {
-								bill.setArrear(new BigDecimal(currentOutstanding));
-								bill.setCumulativeSurcharge(new BigDecimal(currentRecord.getPend_surcharge()));
-								bill.setNetBill(bill.getArrear());
-								bill.setPristineNetBill(bill.getArrear());
-							}
-							bill.setPristineCurrentBill(bill.getCurrentBill());
-
-							session.save(bill);
-							++recordCount;
-
-							String currentBillMonth = billMonthFormat.format(counterDate).toUpperCase();
-							Long paymentAmount = getPaymentForMonth(session, currentBillMonth,
-									consumerNoMaster.getConsumerNo());
-							currentOutstanding += paymentAmount;
-						} else
-							break;
-
-						counterCalendar.add(Calendar.MONTH, -1);
-						counterDate = counterCalendar.getTime();
-					}
-				} else {
-					Bill bill = new Bill();
-					initializeInstance(bill);
-
-					bill.setLocationCode(consumerNoMaster.getLocationCode());
-					bill.setGroupNo(consumerNoMaster.getGroupNo());
-					bill.setReadingDiaryNo(consumerNoMaster.getReadingDiaryNo());
-					bill.setConsumerNo(consumerNoMaster.getConsumerNo());
-					bill.setBillMonth(latestBillMonth);
-					bill.setBillDate(new Date());
-					bill.setDueDate(new Date());
-					bill.setChequeDueDate(new Date());
-					
-					if (totalOutstanding.compareTo(BigDecimal.ZERO) == 0) {
-						bill.setArrear(BigDecimal.ZERO);
-						bill.setCumulativeSurcharge(BigDecimal.ZERO);
-						bill.setNetBill(BigDecimal.ZERO);
-						bill.setPristineNetBill(BigDecimal.ZERO);
-					} else {
-						bill.setArrear(totalOutstanding);
-						bill.setCumulativeSurcharge(totalOutstanding);
-						bill.setNetBill(totalOutstanding);
-						bill.setPristineNetBill(totalOutstanding);
-					}
-					
-					bill.setPristineCurrentBill(bill.getCurrentBill());
-					session.save(bill);
-					++recordCount;
-				}
-
-				session.getTransaction().commit();
-			} catch (Exception e) {
-				++exceptionCount;
-				writer.println();
-				writer.println(
-						"***********EXCEPTION NUMBER " + exceptionCount + "***********" + "Occured on: " + new Date());
-				writer.println("***********CONSUMER NUMBER: " + currentRecord.getOld_cons_no() + "***********");
-				writer.println("Root cause : ");
-				e.printStackTrace(writer);
-				e.printStackTrace();
-				session.getTransaction().rollback();
-			}
+		
+		//find size of each sublist based on the number of partitions
+		int subListSize = (int)Math.ceil(((double)pdcConsumers.size())/noOfPartitions);
+		
+		//divide the list into multiple sublists depending on the number of partitions
+		List<List<CCNBNSCStagingMigration>> pdcConsumersSublists = Lists.partition(pdcConsumers, subListSize);
+		
+		//create an executor service
+		final ExecutorService executorService = Executors.newFixedThreadPool(10);				
+		
+		//create a callable object for all the tasks and add them to the list
+		List<Callable<Pair<Long, Long>>> workerCallables = new ArrayList<>();
+		for(List<CCNBNSCStagingMigration> pdcConsumerSublist: pdcConsumersSublists) {
+			workerCallables.add(new PDCBillGeneratorWorker(sessionFactory, pdcConsumerSublist, latestBillMonth, writer));					
 		}
-
+		
+		//submit all the callables to executor service and get the future objects for each
+		List<Future<Pair<Long, Long>>> futures = executorService.invokeAll(workerCallables);
+		
+		//block till all the tasks have finished execution and get the results from each
+		int i=0;				
+		System.out.println();
+		for(Future<Pair<Long, Long>> future: futures) {
+			Pair<Long, Long> threadSummary = future.get();
+			System.out.print("Thread " + ++i + "=> ");
+			System.out.print("Records inserted: " + threadSummary.getLeft() + ", ");
+			System.out.println("Exceptions caught: " + threadSummary.getRight());
+			recordCount += threadSummary.getLeft();
+			exceptionCount += threadSummary.getRight();
+		}
+		
+		//shutdown the executor service
+		executorService.shutdown();
+		
 		long endTime = System.currentTimeMillis();
-		long totTime = endTime - startTime;
 		long seconds = (endTime - startTime) / 1000;
 		long minutes = seconds / 60;
 		seconds -= minutes * 60;
 
-		System.out.println("PDC SUCCESSFULLY GENERATED!!");
+		System.out.println("\nPDC BILLS SUCCESSFULLY GENERATED!!");
 		System.out.println(recordCount + " BILLS CREATED !!");
 		System.out.println(exceptionCount + " EXCEPTIONS CAUGHT !! PLEASE REFER EXCEPTION LOG FOR MORE DETAILS!!");
 		System.out.println("Time Elapsed: " + minutes + " Minutes " + seconds + " Seconds");
@@ -193,83 +104,13 @@ public class PDCBillGenerator {
 		sessionFactory.close();
 		writer.close();
 	}
-
-	private static Long getPaymentForMonth(Session session, String billMonth, String consumerNo) {
-		Long paymentAmount = 0L;
-
-		Query<Payment> paymentQuery = session
-				.createQuery("from Payment where consumerNo=:consNo and postingBillMonth=:billMonth");
-		paymentQuery.setParameter("consNo", consumerNo);
-		paymentQuery.setParameter("billMonth", billMonth);
-		List<Payment> payments = paymentQuery.list();
-
-		for (Payment payment : payments)
-			paymentAmount += payment.getAmount();
-
-		return paymentAmount;
-	}
-
+	
 	private static String getLatestBillMonth(Session session) {
 		String billMonth = null;
-		SimpleDateFormat billMonthFormat = new SimpleDateFormat("MMM-yyyy");
 
-		Query<Date> latestBillMonthQuery = session
-				.createQuery("select max(to_date(billMonth, 'MON-YYYY')) from Bill where billTypeCode='MIG'");
-
-		Date latestBill = latestBillMonthQuery.uniqueResult();
-		if (latestBill != null)
-			billMonth = billMonthFormat.format(latestBill).toUpperCase();
-
+		Query<String> billMonthQuery = session.createQuery("select distinct(currentBillMonth) from GMCAccounting", String.class);
+		billMonth = billMonthQuery.uniqueResult();
+		
 		return billMonth;
-	}
-
-	private static void initializeInstance(Bill bill) {
-		bill.setCurrentRead(BigDecimal.ZERO);
-		bill.setPreviousRead(BigDecimal.ZERO);
-		bill.setDifference(BigDecimal.ZERO);
-		bill.setMf(BigDecimal.ONE);
-		bill.setMeteredUnit(BigDecimal.ZERO);
-		bill.setAssessment(BigDecimal.ZERO);
-		bill.setTotalUnit(BigDecimal.ZERO);
-		bill.setGmcUnit(BigDecimal.ZERO);
-		bill.setBilledUnit(BigDecimal.ZERO);
-		bill.setBilledMD(BigDecimal.ZERO);
-		bill.setBilledPF(BigDecimal.ZERO);
-		bill.setLoadFactor(BigDecimal.ZERO);
-		bill.setFixedCharge(BigDecimal.ZERO);
-		bill.setAdditionalFixedCharges1(BigDecimal.ZERO);
-		bill.setAdditionalFixedCharges2(BigDecimal.ZERO);
-		bill.setEnergyCharge(BigDecimal.ZERO);
-		bill.setFcaCharge(BigDecimal.ZERO);
-		bill.setElectricityDuty(BigDecimal.ZERO);
-		bill.setPristineElectricityDuty(BigDecimal.ZERO);
-		bill.setMeterRent(BigDecimal.ZERO);
-		bill.setPfCharge(BigDecimal.ZERO);
-		bill.setWeldingTransformerSurcharge(BigDecimal.ZERO);
-		bill.setLoadFactorIncentive(BigDecimal.ZERO);
-		bill.setSdInterest(BigDecimal.ZERO);
-		bill.setCcbAdjustment(BigDecimal.ZERO);
-		bill.setLockCredit(BigDecimal.ZERO);
-		bill.setOtherAdjustment(BigDecimal.ZERO);
-		bill.setEmployeeRebate(BigDecimal.ZERO);
-		bill.setOnlinePaymentRebate(BigDecimal.ZERO);
-		bill.setPrepaidMeterRebate(BigDecimal.ZERO);
-		bill.setPromptPaymentIncentive(BigDecimal.ZERO);
-		bill.setAdvancePaymentIncentive(BigDecimal.ZERO);
-		bill.setDemandSideIncentive(BigDecimal.ZERO);
-		bill.setSubsidy(BigDecimal.ZERO);
-		bill.setCurrentBill(BigDecimal.ZERO);
-		bill.setSurchargeDemanded(BigDecimal.ZERO);
-		bill.setCurrentBillSurcharge(BigDecimal.ZERO);
-		bill.setAsdBilled(BigDecimal.ZERO);
-		bill.setAsdArrear(BigDecimal.ZERO);
-		bill.setAsdInstallment(BigDecimal.ZERO);
-		bill.setXrayFixedCharge(BigDecimal.ZERO);
-		bill.setCurrentBillSurcharge(BigDecimal.ZERO);
-		bill.setBillTypeCode("PDC");
-		bill.setDeleted(false);
-
-		bill.setCreatedBy("CCNB_MIG");
-		bill.setCreatedOn(new Date());
 	}
 }

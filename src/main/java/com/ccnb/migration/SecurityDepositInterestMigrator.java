@@ -13,14 +13,10 @@ import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.query.Query;
 
-import com.ccnb.bean.Group;
-import com.ccnb.bean.ReadingDiaryNo;
 import com.ccnb.bean.SecurityDepositInterest;
 import com.ccnb.util.PathUtil;
 
 public class SecurityDepositInterestMigrator {
-
-	
 	public static void main(String[] args) throws Exception {
 
 		//For creating a exception Text File
@@ -48,10 +44,10 @@ public class SecurityDepositInterestMigrator {
 		Session session = sessionFactory.openSession();
 		long startTime = System.currentTimeMillis();
 
-		Query<String> consumerNoQuery = session.createQuery("select consumerNo from ConsumerNoMaster");
+		Query<String> consumerNoQuery = session.createQuery("select consumerNo from ConsumerNoMaster", String.class);
 		List<String> consumerNos = consumerNoQuery.list();
 		
-		Query<String> billMonthQuery = session.createQuery("select distinct(currentBillMonth) from GMCAccounting");
+		Query<String> billMonthQuery = session.createQuery("select distinct(currentBillMonth) from GMCAccounting", String.class);
 		String billMonth = billMonthQuery.uniqueResult();
 		
 		for(String consumerNo: consumerNos) {
@@ -59,11 +55,16 @@ public class SecurityDepositInterestMigrator {
 			session.beginTransaction();
 			session.flush();
 			
+			//get bill issue date
+			Date billIssueDate = getBillIssueDate(session, consumerNo, billMonth);
+			if(billIssueDate==null)
+				billIssueDate = new Date();			
+			
 			SecurityDepositInterest securityDepositInterest = new SecurityDepositInterest();
 			securityDepositInterest.setConsumerNo(consumerNo);
 			securityDepositInterest.setBillMonth(billMonth);
-			securityDepositInterest.setCalculationStartDate(new Date());
-			securityDepositInterest.setCalculationEndDate(new Date());
+			securityDepositInterest.setCalculationStartDate(billIssueDate);
+			securityDepositInterest.setCalculationEndDate(billIssueDate);
 			securityDepositInterest.setCreatedBy("CCNB_MIG");
 			securityDepositInterest.setCreatedOn(new Date());
 			securityDepositInterest.setUpdatedBy("CCNB_MIG");
@@ -75,9 +76,7 @@ public class SecurityDepositInterestMigrator {
 			++recordCount;
 		}
 		
-		
 		long endTime = System.currentTimeMillis();
-		long totTime = endTime - startTime;
 		long seconds = (endTime - startTime)/1000;
 		long minutes = seconds/60;
 		seconds -= minutes*60;
@@ -85,11 +84,19 @@ public class SecurityDepositInterestMigrator {
 		System.out.println("MIGRATION FROM SECURITY_DEPOSIT_INTEREST SUCCESSFULLY DONE !!");
 		System.out.println(consumerNos.size() + " ROWS WERE RETRIEVED");
 		System.out.println(recordCount + " ROWS WERE SUCCESSFULLY MIGRATED");
-		System.out.println(exceptionCount + " EXCEPTIONS CAUGHT !! PLEASE REFER EXCEPTION LOG FOR MORE DETAILS!!");		
-		System.out.println("Time Elapsed: " + minutes + " Minutes " + seconds + " Seconds");				
+		System.out.println(exceptionCount + " EXCEPTIONS CAUGHT !! PLEASE REFER EXCEPTION LOG FOR MORE DETAILS!!");
+		System.out.println("Time Elapsed: " + minutes + " Minutes " + seconds + " Seconds");
 		
 		session.close();
 		sessionFactory.close();
-		writer.close();		
-	}		
+		writer.close();
+	}
+	
+	private static Date getBillIssueDate(Session session, String consumerNo, String billMonth) {
+		Query<Date> billIssueDateQuery = session.createQuery("select billDate from Bill where consumerNo=:consumerNo and billMonth=:billMonth and deleted=false", Date.class);
+		billIssueDateQuery.setParameter("consumerNo", consumerNo);
+		billIssueDateQuery.setParameter("billMonth", billMonth);
+		Date billDate = billIssueDateQuery.uniqueResult();
+		return billDate;
+	}
 }
